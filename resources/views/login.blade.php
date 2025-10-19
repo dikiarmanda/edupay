@@ -5,7 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - EduPay</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <style>
     .login-container {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -15,14 +16,12 @@
 </head>
 
 <body>
-  <div class="login-container flex min-h-screen items-center justify-center">
-    <div class="mx-4 w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
+  <div class="login-container flex min-h-screen items-center justify-center px-4">
+    <div class="w-full max-w-sm rounded-2xl bg-white p-8 shadow-2xl">
       <!-- Logo -->
       <div class="mb-6 flex justify-center">
         <div class="flex h-16 w-16 items-center justify-center rounded-full bg-purple-100">
-          <svg class="h-8 w-8 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-          </svg>
+          <i data-lucide="school" class="h-8 w-8 text-purple-600"></i>
         </div>
       </div>
 
@@ -40,13 +39,13 @@
       <form method="POST" action="{{ route('login') }}">
         @csrf
 
-        <!-- Email Field -->
+        <!-- NISN Field -->
         <div class="mb-4">
-          <label for="email" class="mb-2 block text-sm font-medium text-gray-700">Email</label>
-          <input type="email" id="email" name="email" value="{{ old('email', 'user@edupay.com') }}"
+          <label for="nisn" class="mb-2 block text-sm font-medium text-gray-700">NISN</label>
+          <input type="text" id="nisn" name="nisn" value="{{ old('nisn', '') }}"
             class="w-full rounded-lg border border-gray-300 px-4 py-3 transition duration-200 focus:border-transparent focus:ring-2 focus:ring-purple-500"
-            placeholder="user@edupay.com" required>
-          @error('email')
+            placeholder="Masukkan NISN Anda" required>
+          @error('nisn')
             <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
           @enderror
         </div>
@@ -70,13 +69,17 @@
       </form>
 
       <!-- Forgot Password Link -->
-      <div class="mt-6 text-center">
+      {{-- <div class="mt-6 text-center">
         <a href="#" class="text-sm font-medium text-purple-600 transition duration-200 hover:text-purple-700">
           Lupa password?
         </a>
-      </div>
+      </div> --}}
     </div>
   </div>
+
+  <script>
+    lucide.createIcons();
+  </script>
 </body>
 
 </html>

@@ -4,14 +4,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>@yield('title', 'EduPay')</title>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.bunny.net">
   <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700" rel="stylesheet" />
-
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
@@ -20,6 +18,25 @@
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 
   <style>
+    /* Reset default margins and paddings */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      max-width: 100vw;
+    }
+
+    /* Container untuk membatasi lebar seperti layar HP */
+    .mobile-container {
+      max-width: 480px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
     .gradient-bg {
       background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #c084fc 100%);
     }
@@ -62,8 +79,10 @@
     .bottom-nav {
       position: fixed;
       bottom: 0;
-      left: 0;
-      right: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
       background: white;
       border-top: 1px solid #e5e7eb;
       z-index: 50;
@@ -98,19 +117,33 @@
         /* Space for bottom navigation */
       }
     }
+
+    /* Untuk layar yang lebih kecil dari 480px */
+    @media (max-width: 480px) {
+      .mobile-container {
+        max-width: 100%;
+        margin: 0;
+      }
+
+      .bottom-nav {
+        left: 0;
+        transform: none;
+        max-width: 100%;
+      }
+    }
   </style>
 
   @stack('styles')
 </head>
 
-<body class="bg-gray-50">
+<body class="w-full overflow-x-hidden bg-gray-50">
   <!-- Main Content Container -->
-  <div class="mobile-container min-h-screen">
+  <div class="mobile-container min-h-screen w-full bg-white shadow-lg">
     @yield('content')
-  </div>
 
-  <!-- Bottom Navigation -->
-  @include('components.bottom-navigation')
+    <!-- Bottom Navigation -->
+    @include('components.bottom-navigation')
+  </div>
 
   <script>
     // Initialize Lucide icons

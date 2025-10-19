@@ -8,11 +8,11 @@
     <div class="flex items-center justify-between">
       <div class="flex items-center space-x-3">
         <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-600">
-          <span class="text-sm font-semibold text-white">N</span>
+          <span class="text-sm font-semibold text-white">{{ strtoupper(substr($user->nama, 0, 1)) }}</span>
         </div>
         <div>
           <p class="text-sm text-gray-500">Selamat Datang,</p>
-          <p class="font-semibold text-gray-900">Moch Fauzan</p>
+          <p class="font-semibold text-gray-900">{{ $user->nama }}</p>
         </div>
       </div>
       <div class="relative">
@@ -29,19 +29,26 @@
         <div class="flex items-center space-x-2">
           <span class="text-sm font-medium">Saldo Efektif</span>
           <button id="toggleBalance" class="transition duration-200">
-            <i id="eyeIcon" data-lucide="eye" class="h-4 w-4 text-white"></i>
+            <i id="eyeIcon" data-lucide="eye-off" class="h-4 w-4 text-white"></i>
+            <i id="eyeIconOn" data-lucide="eye" class="hidden h-4 w-4 text-white"></i>
           </button>
         </div>
         <div class="flex items-center space-x-2">
           <div class="rounded-lg bg-purple-500 px-3 py-1">
             <span class="text-xs font-semibold">UTAMA</span>
           </div>
+          @if (isset($user->merchant_kode))
+            {{-- <div class="rounded-lg bg-blue-500 px-3 py-1">
+              <span class="text-xs font-semibold">{{ $user->merchant_kode }}</span>
+            </div> --}}
+          @endif
         </div>
       </div>
 
       <div class="mb-4">
-        <h2 id="balanceAmount" class="text-3xl font-bold">Rp 1.250.000</h2>
-        <h2 id="balanceHidden" class="hidden text-3xl font-bold">Rp ••••••••</h2>
+        <h2 id="balanceAmount" class="text-3xl font-bold">Rp ••••••••</h2>
+        <h2 id="balanceHidden" class="hidden text-3xl font-bold">Rp {{ number_format($user->saldo, 0, ',', '.') ?? 0 }}
+        </h2>
       </div>
     </div>
   </div>
@@ -150,6 +157,7 @@
     document.addEventListener('DOMContentLoaded', function() {
       const toggleButton = document.getElementById('toggleBalance');
       const eyeIcon = document.getElementById('eyeIcon');
+      const eyeIconOn = document.getElementById('eyeIconOn');
       const balanceAmount = document.getElementById('balanceAmount');
       const balanceHidden = document.getElementById('balanceHidden');
 
@@ -160,19 +168,17 @@
           // Hide balance
           balanceAmount.classList.add('hidden');
           balanceHidden.classList.remove('hidden');
-          eyeIcon.setAttribute('data-lucide', 'eye-off');
+          eyeIcon.classList.add('hidden');
+          eyeIconOn.classList.remove('hidden');
           isVisible = false;
         } else {
           // Show balance
           balanceAmount.classList.remove('hidden');
           balanceHidden.classList.add('hidden');
-          eyeIcon.setAttribute('data-lucide', 'eye');
-          eyeIcon.classList.remove('lucide-eye-off');
+          eyeIconOn.classList.add('hidden');
+          eyeIcon.classList.remove('hidden');
           isVisible = true;
         }
-
-        // Re-initialize Lucide icons to update the eye icon
-        lucide.createIcons();
       });
     });
   </script>

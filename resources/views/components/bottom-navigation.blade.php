@@ -29,3 +29,4 @@
       <span class="text-xs font-medium text-gray-600">Profil</span>
     </a>
   </div>
+</div>

@@ -1,13 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BillController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\CreatePinController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\BillController;
 use App\Http\Controllers\TopupController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecurityController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', [HomeController::class, 'splash'])->name('splash');
 
@@ -17,11 +17,11 @@ Route::post('/login', [LoginController::class, 'authenticate'])->name('login.aut
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Create PIN Routes
-Route::get('/create-pin', [CreatePinController::class, 'index'])->name('pin.create');
-Route::post('/create-pin', [CreatePinController::class, 'store'])->name('pin.store');
-Route::post('/verify-pin', [CreatePinController::class, 'verify'])->name('pin.verify');
+Route::get('/create-pin', [SecurityController::class, 'createPin'])->name('security.createPin');
+Route::post('/create-pin', [SecurityController::class, 'storePin'])->name('security.storePin');
+Route::post('/verify-pin', [SecurityController::class, 'verifyPin'])->name('security.verifyPin');
 
-Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 Route::get('/semua-menu', [HomeController::class, 'semuaMenu'])->name('semua-menu');
 Route::get('/mutasi', [HomeController::class, 'mutasi'])->name('mutasi');
 Route::get('/bantuan', [HomeController::class, 'bantuan'])->name('bantuan');
@@ -38,6 +38,9 @@ Route::get('/tagihan', [BillController::class, 'index'])->name('tagihan.index');
 
 // Topup Routes
 Route::get('/isi-saldo', [TopupController::class, 'index'])->name('topup.index');
+Route::post('/topup/create-invoice', [TopupController::class, 'createInvoice'])->name('topup.createInvoice');
+Route::post('/topup/check-status', [TopupController::class, 'checkStatus'])->name('topup.checkStatus');
+Route::post('/topup/webhook', [TopupController::class, 'webhook'])->name('topup.webhook');
 
 // Security Routes
 Route::group(['prefix' => 'security'], function () {

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -18,10 +17,13 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'nama',
+        'nisn_siswa',
+        'username',
         'email',
         'password',
         'pin',
+        'avatarUrl',
     ];
 
     /**
@@ -31,7 +33,6 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
-        'remember_token',
         'pin',
     ];
 
@@ -43,8 +44,15 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the siswa associated with this user.
+     */
+    public function siswa()
+    {
+        return $this->belongsTo(Siswa::class, 'nisn_siswa', 'nisn');
     }
 }

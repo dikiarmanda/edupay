@@ -1,0 +1,19 @@
+{
+    "ai": {
+        "model": "auto",
+        "agents": {
+            "code": true,
+            "chat": true
+        },
+        "rules": [
+            "Jangan membuat file migration secara otomatis.",
+            "Jangan membuat file seeder tanpa perintah eksplisit.",
+            "Fokus hanya pada kode controller, model, atau view jika tidak diminta lainnya.",
+            "Abaikan folder database/migrations dan database/seeders dalam konteks auto mode."
+        ],
+        "ignore": [
+            "database/migrations",
+            "database/seeders"
+        ]
+    }
+}

@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'payment_api' => [
+        'base_url' => env('PAYMENT_API_BASE_URL', 'https://pay.amzadigitalnusantara.com'),
+        'api_username' => env('PAYMENT_API_USERNAME'),
+        'api_password' => env('PAYMENT_API_PASSWORD'),
+        'timeout' => env('PAYMENT_API_TIMEOUT', 30),
+    ],
 ];

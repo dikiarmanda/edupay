@@ -5,8 +5,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Buat PIN Keamanan - EduPay</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
   <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+
     .pin-input {
       width: 50px;
       height: 50px;
@@ -43,8 +48,8 @@
   </style>
 </head>
 
-<body class="flex min-h-screen items-center justify-center bg-white p-4">
-  <div class="w-full max-w-md">
+<body class="flex min-h-screen items-center justify-center px-4">
+    <div class="w-full max-w-sm rounded-2xl bg-white p-8 shadow-2xl">
     <!-- Header -->
     <div class="mb-8 text-center">
       <h1 class="mb-4 text-3xl font-bold text-gray-900">Buat PIN Keamanan</h1>
@@ -52,7 +57,7 @@
     </div>
 
     <!-- PIN Form -->
-    <form id="pinForm" method="POST" action="{{ route('pin.store') }}">
+    <form id="pinForm" method="POST" action="{{ route('security.storePin') }}">
       @csrf
 
       <!-- PIN Input Section -->
@@ -169,8 +174,10 @@
 
       // Function to validate PIN match
       function validatePinMatch() {
-        const pin = pinValueInput.value;
-        const confirmPin = pinConfirmValueInput.value;
+        let pin = pinValueInput.value;
+        let confirmPin = pinConfirmValueInput.value;
+        console.log(pin);
+        console.log(confirmPin);
 
         if (pin.length === 6 && confirmPin.length === 6) {
           if (pin === confirmPin) {
@@ -181,7 +188,7 @@
             confirmPinInputs.forEach(input => input.classList.add('success'));
             errorMessage.classList.add('hidden');
             successMessage.classList.remove('hidden');
-            saveButton.disabled = false;
+            // saveButton.disabled = false;
             return true;
           } else {
             // PIN doesn't match
@@ -191,7 +198,7 @@
             confirmPinInputs.forEach(input => input.classList.add('error'));
             errorMessage.classList.remove('hidden');
             successMessage.classList.add('hidden');
-            saveButton.disabled = true;
+            // saveButton.disabled = true;
             return false;
           }
         } else {
@@ -200,7 +207,7 @@
           confirmPinInputs.forEach(input => input.classList.remove('error', 'success'));
           errorMessage.classList.add('hidden');
           successMessage.classList.add('hidden');
-          saveButton.disabled = true;
+        //   saveButton.disabled = true;
           return false;
         }
       }
@@ -216,10 +223,6 @@
           return false;
         }
       });
-
-      // Add real-time validation
-      pinValueInput.addEventListener('input', validatePinMatch);
-      pinConfirmValueInput.addEventListener('input', validatePinMatch);
 
       // Initial validation
       validatePinMatch();

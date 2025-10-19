@@ -67,101 +67,57 @@
 
       <!-- Riwayat Tab Content -->
       <div id="content-riwayat" class="space-y-4" style="display: none;">
-        <!-- Transaction 1 - Berhasil -->
-        <div class="rounded-lg bg-white p-4 shadow-sm">
-          <div class="flex items-center justify-between">
-            <div class="flex-1">
-              <h3 class="font-medium text-gray-900">Isi Saldo via Transfer Bank</h3>
-              <p class="text-sm text-gray-500">2024-07-28</p>
-              <div class="mt-1 flex items-center space-x-2">
-                <svg class="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                <span class="text-sm font-medium text-green-500">Berhasil</span>
+        @if ($transactions && $transactions->count() > 0)
+          @foreach ($transactions as $transaction)
+            <div class="rounded-lg bg-white p-4 shadow-sm">
+              <div class="flex items-center justify-between">
+                <div class="flex-1">
+                  <h3 class="font-medium text-gray-900">{{ $transaction->product }}</h3>
+                  <p class="text-sm text-gray-500">{{ $transaction->created_at->format('d M Y H:i') }}</p>
+                  <div class="mt-1 flex items-center space-x-2">
+                    @if ($transaction->status === 'success')
+                      <i data-lucide="check-circle" class="h-4 w-4 text-green-500"></i>
+                      <span class="text-sm font-medium text-green-500">{{ $transaction->status_text }}</span>
+                    @elseif($transaction->status === 'pending')
+                      <i data-lucide="clock" class="h-4 w-4 text-yellow-500"></i>
+                      <span class="text-sm font-medium text-yellow-500">{{ $transaction->status_text }}</span>
+                    @else
+                      <i data-lucide="x-circle" class="h-4 w-4 text-red-500"></i>
+                      <span class="text-sm font-medium text-red-500">{{ $transaction->status_text }}</span>
+                    @endif
+                  </div>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold text-gray-900">{{ $transaction->formatted_amount }}</p>
+                  @if ($transaction->status === 'success')
+                    <button onclick="showTransactionDetail('{{ $transaction->trx_id }}')"
+                      class="mt-2 flex items-center space-x-1 rounded-lg bg-purple-50 px-3 py-1 text-sm text-purple-600 hover:bg-purple-100">
+                      <i data-lucide="file-text" class="h-4 w-4"></i>
+                      <span>Lihat Detail</span>
+                    </button>
+                  @elseif($transaction->status === 'pending')
+                    <div class="flex">
+                      <button onclick="checkPaymentStatus('{{ $transaction->trx_id }}')"
+                        class="mt-2 flex items-center space-x-1 rounded-lg bg-purple-50 px-3 py-1 text-sm text-purple-600 hover:bg-purple-100">
+                        <i data-lucide="clock" class="h-4 w-4"></i><span>Cek Status</span></button>
+                      <a href="{{ $transaction->gateway_url }}" target="_blank"
+                        class="mt-2 flex items-center space-x-1 rounded-lg bg-blue-50 px-3 py-1 text-sm text-blue-600 hover:bg-blue-100">
+                        <i data-lucide="credit-card" class="h-4 w-4"></i>
+                        <span>Bayar</span>
+                      </a>
+                    </div>
+                  @endif
+                </div>
               </div>
             </div>
-            <div class="text-right">
-              <p class="font-bold text-gray-900">Rp100.000</p>
-              <button
-                class="mt-2 flex items-center space-x-1 rounded-lg bg-purple-50 px-3 py-1 text-sm text-purple-600 hover:bg-purple-100">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                  </path>
-                </svg>
-                <span>Lihat Detail</span>
-              </button>
-            </div>
+          @endforeach
+        @else
+          <div class="rounded-lg bg-white p-8 text-center shadow-sm">
+            <i data-lucide="file-text" class="mx-auto h-12 w-12 text-gray-400"></i>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">Belum ada riwayat</h3>
+            <p class="mt-1 text-sm text-gray-500">Mulai dengan melakukan top-up saldo pertama Anda.</p>
           </div>
-        </div>
-
-        <!-- Transaction 2 - Berhasil -->
-        <div class="rounded-lg bg-white p-4 shadow-sm">
-          <div class="flex items-center justify-between">
-            <div class="flex-1">
-              <h3 class="font-medium text-gray-900">Isi Saldo via e-Wallet</h3>
-              <p class="text-sm text-gray-500">2024-07-25</p>
-              <div class="mt-1 flex items-center space-x-2">
-                <svg class="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                <span class="text-sm font-medium text-green-500">Berhasil</span>
-              </div>
-            </div>
-            <div class="text-right">
-              <p class="font-bold text-gray-900">Rp50.000</p>
-              <button
-                class="mt-2 flex items-center space-x-1 rounded-lg bg-purple-50 px-3 py-1 text-sm text-purple-600 hover:bg-purple-100">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                  </path>
-                </svg>
-                <span>Lihat Detail</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Transaction 3 - Tertunda -->
-        <div class="rounded-lg bg-white p-4 shadow-sm">
-          <div class="flex items-center justify-between">
-            <div class="flex-1">
-              <h3 class="font-medium text-gray-900">Isi Saldo via Transfer Bank</h3>
-              <p class="text-sm text-gray-500">2024-07-20</p>
-              <div class="mt-1 flex items-center space-x-2">
-                <svg class="h-4 w-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <span class="text-sm font-medium text-yellow-500">Tertunda</span>
-              </div>
-            </div>
-            <div class="text-right">
-              <p class="font-bold text-gray-900">Rp250.000</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Transaction 4 - Gagal -->
-        <div class="rounded-lg bg-white p-4 shadow-sm">
-          <div class="flex items-center justify-between">
-            <div class="flex-1">
-              <h3 class="font-medium text-gray-900">Isi Saldo via Toko Retail</h3>
-              <p class="text-sm text-gray-500">2024-07-18</p>
-              <div class="mt-1 flex items-center space-x-2">
-                <svg class="h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                  </path>
-                </svg>
-                <span class="text-sm font-medium text-red-500">Gagal</span>
-              </div>
-            </div>
-            <div class="text-right">
-              <p class="font-bold text-gray-900">Rp75.000</p>
-            </div>
-          </div>
-        </div>
+        @endif
       </div>
     </div>
   </div>
@@ -178,10 +134,10 @@
       contentElements.forEach(element => element.style.display = 'none');
       tabButtons.forEach(button => {
         button.className = 'flex-1 rounded-lg bg-gray-100 px-4 py-2 text-center font-medium text-gray-700';
-        if (button.id == 'riwayat') {
-            button.classList.add('rounded-r-none');
+        if (button.id == 'tab-riwayat') {
+          button.classList.add('rounded-l-none');
         } else {
-            button.classList.add('rounded-l-none');
+          button.classList.add('rounded-r-none');
         }
       });
 
@@ -199,6 +155,7 @@
     // Initialize with riwayat tab active
     document.addEventListener('DOMContentLoaded', function() {
       switchTab('isi-saldo');
+      document.getElementById('navDashboard').classList.add('active');
     });
 
     document.getElementById('customAmount').addEventListener('input', function(e) {
@@ -250,8 +207,100 @@
         return;
       }
 
-      // Show success toast
-      showToast(`Proses pembayaran untuk jumlah Rp ${amount}`, 'success');
+      // Convert formatted amount to number
+      let numericAmount = parseInt(amount.replace(/\./g, ''), 10);
+
+      if (numericAmount < 10000) {
+        showToast('Minimum top-up adalah Rp 10.000', 'error');
+        return;
+      }
+
+      if (numericAmount > 10000000) {
+        showToast('Maximum top-up adalah Rp 10.000.000', 'error');
+        return;
+      }
+
+      // Show loading state
+      const button = event.target;
+      const originalText = button.textContent;
+      button.textContent = 'Memproses...';
+      button.disabled = true;
+
+      // Call API to create invoice
+      fetch('/topup/create-invoice', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          },
+          body: JSON.stringify({
+            amount: numericAmount
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            showToast('Invoice berhasil dibuat! Silakan lakukan pembayaran.', 'success');
+
+            // Redirect to payment URL if available
+            if (data.data.paymentUrl) {
+              window.location.href = data.data.paymentUrl;
+            }
+
+            // Refresh the page to show updated history
+            setTimeout(() => {
+              location.reload();
+            }, 2000);
+          } else {
+            showToast(data.message || 'Gagal membuat invoice', 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showToast('Terjadi kesalahan saat memproses pembayaran', 'error');
+        })
+        .finally(() => {
+          // Reset button state
+          button.textContent = originalText;
+          button.disabled = false;
+        });
+    }
+
+    function showTransactionDetail(trxId) {
+      // Show transaction detail modal or redirect to detail page
+      showToast(`Menampilkan detail transaksi: ${trxId}`, 'info');
+    }
+
+    function checkPaymentStatus(trxId) {
+      fetch('/topup/check-status', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          },
+          body: JSON.stringify({
+            trx_id: trxId
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            if (data.data.status === 'success') {
+              showToast('Pembayaran berhasil! Saldo telah ditambahkan.', 'success');
+              location.reload();
+            } else if (data.data.status === 'pending') {
+              showToast('Pembayaran masih dalam proses...', 'info');
+            } else {
+              showToast('Pembayaran gagal atau dibatalkan', 'error');
+            }
+          } else {
+            showToast(data.message || 'Gagal mengecek status pembayaran', 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showToast('Terjadi kesalahan saat mengecek status', 'error');
+        });
     }
   </script>
 
