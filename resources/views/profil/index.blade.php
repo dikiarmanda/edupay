@@ -90,20 +90,28 @@
       </div>
 
       <!-- Logout -->
-      <div class="rounded-xl bg-white p-4 shadow-sm">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
-              <i data-lucide="log-out" class="h-5 w-5 text-red-600"></i>
+      <a href="{{ route('logout') }}" onclick="return confirmLogout()">
+        <div class="rounded-xl bg-white p-4 shadow-sm">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
+                <i data-lucide="log-out" class="h-5 w-5 text-red-600"></i>
+              </div>
+              <div>
+                <p class="font-medium text-red-600">Keluar</p>
+                <p class="text-sm text-gray-500">Logout dari akun</p>
+              </div>
             </div>
-            <div>
-              <p class="font-medium text-red-600">Keluar</p>
-              <p class="text-sm text-gray-500">Logout dari akun</p>
-            </div>
+            <i data-lucide="chevron-right" class="h-5 w-5 text-gray-400"></i>
           </div>
-          <i data-lucide="chevron-right" class="h-5 w-5 text-gray-400"></i>
         </div>
-      </div>
+      </a>
     </div>
   </div>
+
+  <script>
+    function confirmLogout() {
+      return confirm('Apakah Anda yakin ingin keluar dari akun?');
+    }
+  </script>
 @endsection

@@ -38,16 +38,21 @@
       <!-- Login Form -->
       <form method="POST" action="{{ route('login') }}">
         @csrf
-
+        @error('nisn')
+          <div class="mb-4 flex items-center rounded-lg border border-red-300 bg-red-100 p-4 text-sm text-red-800"
+            role="alert">
+            <i data-lucide="x" class="me-3 inline h-5 w-5 flex-shrink-0"></i>
+            <div>
+              <span class="font-medium">Error!</span> {{ $message }}
+            </div>
+          </div>
+        @enderror
         <!-- NISN Field -->
         <div class="mb-4">
           <label for="nisn" class="mb-2 block text-sm font-medium text-gray-700">NISN</label>
           <input type="text" id="nisn" name="nisn" value="{{ old('nisn', '') }}"
             class="w-full rounded-lg border border-gray-300 px-4 py-3 transition duration-200 focus:border-transparent focus:ring-2 focus:ring-purple-500"
             placeholder="Masukkan NISN Anda" required>
-          @error('nisn')
-            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-          @enderror
         </div>
 
         <!-- Password Field -->
@@ -56,9 +61,6 @@
           <input type="password" id="password" name="password"
             class="w-full rounded-lg border border-gray-300 px-4 py-3 transition duration-200 focus:border-transparent focus:ring-2 focus:ring-purple-500"
             placeholder="Masukkan password Anda" required>
-          @error('password')
-            <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
-          @enderror
         </div>
 
         <!-- Login Button -->
@@ -79,6 +81,11 @@
 
   <script>
     lucide.createIcons();
+    document.querySelectorAll('div[role="alert"]').forEach(function(alert) {
+      alert.addEventListener('click', function() {
+        alert.remove();
+      });
+    });
   </script>
 </body>
 

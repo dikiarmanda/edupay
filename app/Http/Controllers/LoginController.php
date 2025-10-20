@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\MutationHistory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Log;
 
 class LoginController extends Controller
 {
@@ -35,23 +36,15 @@ class LoginController extends Controller
         // Cek apakah user ada di database
         $user = User::where('nisn_siswa', $credentials['nisn'])->first();
 
-        if (!$user) {
-            return back()->withErrors([
-                'nisn' => 'Nisn tidak terdaftar dalam sistem.',
-            ])->onlyInput('nisn');
-        }
-
-        // Cek password dengan hash
-        if (!Hash::check($credentials['password'], $user->password)) {
+        if (!$user || !Hash::check($credentials['password'], $user->password)) {
             return back()->withErrors([
                 'nisn' => 'NISN atau password yang dimasukkan salah.',
-            ])->onlyInput('nisn');
+            ]);
         }
 
         // Login berhasil
         Auth::login($user);
         $request->session()->regenerate();
-
         $this->getDataUser($request, $user);
 
         // Redirect berdasarkan status PIN
@@ -82,9 +75,13 @@ class LoginController extends Controller
             // Data contoh untuk testing jika tidak ada merchant_kode
             $mutationHistory = [];
         }
-        $saldo = $mutationHistory->reduce(function ($carry, $item) {
-            return $carry + ($item->debet ? -$item->debet : $item->kredit);
-        }, 0);
+        try {
+            $saldo = $mutationHistory->reduce(function ($carry, $item) {
+                return $carry + ($item->debet ? -$item->debet : $item->kredit);
+            }, 0);
+        } catch (\Throwable $th) {
+            $saldo = 0;
+        }
 
         // Simpan data user ke session untuk ditampilkan di dashboard
         $request->session()->put('auth', [

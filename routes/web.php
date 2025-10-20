@@ -14,7 +14,7 @@ Route::get('/', [HomeController::class, 'splash'])->name('splash');
 // Login Routes
 Route::get('/login', [LoginController::class, 'index'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Create PIN Routes
 Route::get('/create-pin', [SecurityController::class, 'createPin'])->name('security.createPin');
