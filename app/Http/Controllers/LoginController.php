@@ -92,6 +92,7 @@ class LoginController extends Controller
             'email' => $user->email,
             'merchant_kode' => $siswa->merchant_kode,
             'avatarUrl' => $user->avatarUrl,
+            'kelas' => $siswa->kelas,
             'saldo' => $saldo,
         ]);
     }

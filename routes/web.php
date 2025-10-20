@@ -23,7 +23,8 @@ Route::post('/verify-pin', [SecurityController::class, 'verifyPin'])->name('secu
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 Route::get('/semua-menu', [HomeController::class, 'semuaMenu'])->name('semua-menu');
-Route::get('/mutasi', [HomeController::class, 'mutasi'])->name('mutasi');
+Route::get('/mutasi', [DashboardController::class, 'mutasi'])->middleware('auth')->name('mutasi');
+Route::get('/tentang', [DashboardController::class, 'tentang'])->middleware('auth')->name('tentang');
 Route::get('/bantuan', [HomeController::class, 'bantuan'])->name('bantuan');
 
 // Profile Routes

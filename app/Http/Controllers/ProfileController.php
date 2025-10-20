@@ -11,7 +11,8 @@ class ProfileController extends Controller
      */
     public function index()
     {
-        return view('profil.index');
+        $user = (object) session('auth');
+        return view('profil.index', compact('user'));
     }
 
     /**
@@ -19,7 +20,8 @@ class ProfileController extends Controller
      */
     public function edit()
     {
-        return view('profil.edit');
+        $user = (object) session('auth');
+        return view('profil.edit', compact('user'));
     }
 
     /**

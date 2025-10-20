@@ -76,4 +76,28 @@ class MutationHistory extends Model
     {
         return $query->where('nisn', $nisn)->where('merchant_name', $merchantName);
     }
+
+    /**
+     * Scope untuk filter berdasarkan rentang tanggal
+     */
+    public function scopeByDateRange($query, $startDate, $endDate)
+    {
+        return $query->whereBetween('date_trx', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+    }
+
+    /**
+     * Scope untuk filter transaksi masuk (kredit)
+     */
+    public function scopeCredit($query)
+    {
+        return $query->where('kredit', '>', 0);
+    }
+
+    /**
+     * Scope untuk filter transaksi keluar (debet)
+     */
+    public function scopeDebit($query)
+    {
+        return $query->where('debet', '>', 0);
+    }
 }

@@ -121,7 +121,7 @@ class PaymentApiService
             $response = Http::withoutVerifying()->withHeaders([
                 'Authorization' => 'Bearer ' . $this->token,
                 'Accept' => 'application/json',
-            ])->get($this->baseUrl . '/api/invoice/status/' . $trxId);
+            ])->get($this->baseUrl . '/invoice/status/' . $trxId);
             Log::info('Response Cek Invoice Status : ' . $response);
             if ($response->successful()) {
                 return $response->json();

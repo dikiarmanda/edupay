@@ -10,9 +10,9 @@
         <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-600">
           <span class="text-sm font-semibold text-white">{{ strtoupper(substr($user->nama, 0, 1)) }}</span>
         </div>
-        <div>
-          <p class="text-sm text-gray-500">Selamat Datang,</p>
-          <p class="font-semibold text-gray-900">{{ $user->nama }}</p>
+        <div class="flex items-center space-x-2">
+            <p class="text-xl font-semibold">{{ $user->greeting['text'] }}</p>
+          <i data-lucide="{{ $user->greeting['icon'] }}" class="h-5 w-5 text-purple-600"></i>
         </div>
       </div>
       <div class="relative">
@@ -27,25 +27,21 @@
     <div class="gradient-bg floating-shapes relative rounded-2xl p-6 text-white">
       <div class="mb-4 flex items-center justify-between">
         <div class="flex items-center space-x-2">
-          <span class="text-sm font-medium">Saldo Efektif</span>
-          <button id="toggleBalance" class="transition duration-200">
-            <i id="eyeIcon" data-lucide="eye-off" class="h-4 w-4 text-white"></i>
-            <i id="eyeIconOn" data-lucide="eye" class="hidden h-4 w-4 text-white"></i>
-          </button>
+          <h3 class="font-semibold">{{ $user->nama }}</h3>
         </div>
         <div class="flex items-center space-x-2">
           <div class="rounded-lg bg-purple-500 px-3 py-1">
             <span class="text-xs font-semibold">UTAMA</span>
           </div>
-          @if (isset($user->merchant_kode))
-            {{-- <div class="rounded-lg bg-blue-500 px-3 py-1">
-              <span class="text-xs font-semibold">{{ $user->merchant_kode }}</span>
-            </div> --}}
-          @endif
         </div>
       </div>
 
-      <div class="mb-4">
+      <div class="mb-2">
+        <span class="text-sm font-medium">Saldo Efektif</span>
+        <button id="toggleBalance" class="transition duration-200">
+          <i id="eyeIcon" data-lucide="eye-off" class="h-4 w-4 text-white"></i>
+          <i id="eyeIconOn" data-lucide="eye" class="hidden h-4 w-4 text-white"></i>
+        </button>
         <h2 id="balanceAmount" class="text-3xl font-bold">Rp ••••••••</h2>
         <h2 id="balanceHidden" class="hidden text-3xl font-bold">Rp {{ number_format($user->saldo, 0, ',', '.') ?? 0 }}
         </h2>
@@ -124,7 +120,7 @@
   </div>
 
   <!-- Achievements and Events -->
-  <div class="mb-6 px-4">
+  <div class="mb-15 px-4">
     <div class="mb-4 flex items-center justify-between">
       <h3 class="text-lg font-bold text-gray-900">Prestasi dan Event Kegiatan</h3>
       <a href="#" class="text-sm font-medium text-purple-600">Lihat Semua</a>
