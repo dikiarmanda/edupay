@@ -26,13 +26,11 @@
 
       <!-- Tab Navigation -->
       <div class="mb-4">
-        <div class="flex rounded-lg bg-gray-100 p-1">
-          <button id="tab-belum-lunas" onclick="switchTab('belum-lunas')"
-            class="flex-1 rounded-l-lg bg-gray-100 px-4 py-2 text-center font-medium text-gray-700">
+        <div class="flex">
+          <button id="tab-belum-lunas" onclick="switchTab('belum-lunas')">
             Belum Lunas
           </button>
-          <button id="tab-riwayat" onclick="switchTab('riwayat')"
-            class="flex-1 rounded-r-lg border border-gray-200 bg-white px-4 py-2 text-center font-medium text-gray-500">
+          <button id="tab-riwayat" onclick="switchTab('riwayat')">
             Riwayat
           </button>
         </div>
@@ -164,30 +162,28 @@
   @include('components.toast')
 
   <script>
-    // Tab switching functionality
     function switchTab(tabName) {
-      // Hide all content
-      document.getElementById('content-belum-lunas').style.display = 'none';
-      document.getElementById('content-riwayat').style.display = 'none';
+      const contentElements = document.querySelectorAll('#content-belum-lunas, #content-riwayat');
+      const tabButtons = document.querySelectorAll('#tab-belum-lunas, #tab-riwayat');
 
-      // Reset all tab buttons
-      document.getElementById('tab-belum-lunas').className =
-        'flex-1 rounded-l-lg bg-gray-100 px-4 py-2 text-center font-medium text-gray-700';
-      document.getElementById('tab-riwayat').className =
-        'flex-1 rounded-r-lg border border-gray-200 bg-white px-4 py-2 text-center font-medium text-gray-500';
+      contentElements.forEach(element => element.style.display = 'none');
+      tabButtons.forEach(button => {
+        button.className = 'flex-1 rounded-lg bg-white px-4 py-2 text-center font-medium text-gray-700';
+        if (button.id == 'tab-riwayat') {
+          button.classList.add('rounded-l-none');
+        } else {
+          button.classList.add('rounded-r-none');
+        }
+      });
 
       if (tabName === 'belum-lunas') {
-        // Show belum lunas content
-        document.getElementById('content-belum-lunas').style.display = 'block';
-        // Update tab button
-        document.getElementById('tab-belum-lunas').className =
-          'flex-1 rounded-l-lg bg-gray-100 px-4 py-2 text-center font-medium text-gray-700';
+        contentElements[0].style.display = 'block';
+        tabButtons[0].className = 'flex-1 rounded-lg bg-purple-100 px-4 py-2 text-center font-medium text-purple-700';
+        tabButtons[0].classList.add('rounded-r-none');
       } else if (tabName === 'riwayat') {
-        // Show riwayat content
-        document.getElementById('content-riwayat').style.display = 'block';
-        // Update tab button
-        document.getElementById('tab-riwayat').className =
-          'flex-1 rounded-r-lg border border-purple-500 bg-white px-4 py-2 text-center font-medium text-purple-500';
+        contentElements[1].style.display = 'block';
+        tabButtons[1].className = 'flex-1 rounded-lg bg-purple-100 px-4 py-2 text-center font-medium text-purple-700';
+        tabButtons[1].classList.add('rounded-l-none');
       }
     }
 

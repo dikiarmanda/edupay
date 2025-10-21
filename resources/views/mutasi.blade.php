@@ -2,10 +2,13 @@
 
 @section('title', 'Mutasi - EduPay')
 
+@push('styles')
+@endpush
+
 @section('content')
 
   <!-- Content -->
-  <div class="px-4 py-6 mb-18">
+  <div class="mb-18 px-4 py-6">
     <div class="mb-6">
       <h2 class="mb-4 text-xl font-bold text-gray-900">Mutasi Transaksi</h2>
 
@@ -14,13 +17,17 @@
         <div class="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
             <label for="start_date" class="mb-2 block text-sm font-medium text-gray-700">Tanggal Mulai</label>
-            <input type="date" id="start_date" name="start_date" value="{{ $startDate }}"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500">
+            <input type="text" id="start_date" name="start_date" value="{{ $startDate }}"
+              placeholder="Pilih tanggal mulai"
+              class="w-full cursor-pointer rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+              readonly>
           </div>
           <div>
             <label for="end_date" class="mb-2 block text-sm font-medium text-gray-700">Tanggal Akhir</label>
-            <input type="date" id="end_date" name="end_date" value="{{ $endDate }}"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500">
+            <input type="text" id="end_date" name="end_date" value="{{ $endDate }}"
+              placeholder="Pilih tanggal akhir"
+              class="w-full cursor-pointer rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+              readonly>
           </div>
           <div class="flex items-end">
             <button type="submit"
@@ -84,8 +91,17 @@
     </div>
   </div>
 
-  <script>
-    // Initialize Lucide icons
-    lucide.createIcons();
-  </script>
+  @push('scripts')
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Initialize Flatpickr menggunakan fungsi yang sudah di-import
+        if (typeof window.initializeFlatpickr === 'function') {
+          window.initializeFlatpickr();
+        }
+      });
+    </script>
+  @endpush
 @endsection

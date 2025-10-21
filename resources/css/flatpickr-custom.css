@@ -1,0 +1,173 @@
+/* Custom Flatpickr styling untuk EduPay - Aesthetic Purple Theme */
+
+/* Custom purple-25 color */
+.bg-purple-25 {
+    background-color: #fefcff;
+}
+
+.from-purple-25 {
+    --tw-gradient-from: #fefcff;
+    --tw-gradient-to: rgba(254, 252, 255, 0);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+/* Override Flatpickr default styles dengan specificity tinggi */
+body .flatpickr-calendar {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    background: white !important;
+    font-family: inherit !important;
+    border: none !important;
+    border-radius: 1rem !important;
+    overflow: hidden !important;
+}
+
+body .flatpickr-months {
+    background: linear-gradient(
+        135deg,
+        #7c3aed 0%,
+        #a855f7 50%,
+        #c084fc 100%
+    ) !important;
+    border-radius: 1rem 1rem 0 0 !important;
+    padding: 1rem !important;
+}
+
+body .flatpickr-month,
+body .flatpickr-current-month {
+    color: white !important;
+    font-weight: bold !important;
+    font-size: 1.2rem !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+body .flatpickr-prev-month,
+body .flatpickr-next-month {
+    color: white !important;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    border-radius: 50% !important;
+    padding: 0.5rem !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+body .flatpickr-prev-month:hover,
+body .flatpickr-next-month:hover {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+body .flatpickr-prev-month svg,
+body .flatpickr-next-month svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+}
+
+/* Weekdays styling */
+body .flatpickr-weekdays {
+    background: linear-gradient(to right, #fefcff, #f3e8ff) !important;
+    padding: 1rem 0.5rem !important;
+}
+
+body .flatpickr-weekday {
+    color: #9333ea !important;
+    font-weight: 500 !important;
+    font-size: 0.875rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+}
+
+/* Days styling */
+body .flatpickr-days {
+    padding: 1rem 0.5rem !important;
+}
+
+body .flatpickr-day {
+    color: #1f2937;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    line-height: 2.5rem !important;
+    margin: 0.125rem !important;
+    border-radius: 0.75rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+}
+
+body .flatpickr-day:hover:not(.disabled):not(.selected) {
+    background-color: #f3e8ff !important;
+    color: #9333ea !important;
+    transform: scale(1.02) !important;
+}
+
+body .flatpickr-day.selected {
+    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%) !important;
+    color: white !important;
+    transform: scale(1.05) !important;
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.3) !important;
+}
+
+body .flatpickr-day.today {
+    border: 2px solid #a855f7 !important;
+    color: #7c3aed !important;
+    background-color: #fefcff !important;
+    font-weight: 600 !important;
+    transform: scale(1.02) !important;
+}
+
+body .flatpickr-day.today.selected {
+    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%) !important;
+    color: white !important;
+    border-color: #7c3aed !important;
+    transform: scale(1.05) !important;
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.3) !important;
+}
+
+body .flatpickr-day.flatpickr-disabled.disabled {
+    color: #d1d5db !important;
+    cursor: not-allowed !important;
+}
+
+body .flatpickr-day.disabled:hover {
+    background-color: transparent !important;
+    color: #d1d5db !important;
+}
+
+/* Input focus styling */
+body .flatpickr-input:focus {
+    border-color: #7c3aed !important;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1) !important;
+}
+
+/* Calendar positioning */
+body .flatpickr-calendar.open {
+    z-index: 50 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    body .flatpickr-calendar {
+        margin: 0 1rem !important;
+        width: calc(100vw - 2rem) !important;
+    }
+
+    body .flatpickr-days {
+        padding: 0.75rem 0.25rem !important;
+    }
+
+    body .flatpickr-day {
+        width: 2.25rem !important;
+        height: 2.25rem !important;
+        line-height: 2.25rem !important;
+        font-size: 0.875rem !important;
+        margin: 0.125rem !important;
+    }
+
+    body .flatpickr-month,
+    body .flatpickr-current-month {
+        font-size: 1rem !important;
+    }
+}
