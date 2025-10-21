@@ -11,13 +11,20 @@
           <span class="text-sm font-semibold text-white">{{ strtoupper(substr($user->nama, 0, 1)) }}</span>
         </div>
         <div class="flex items-center space-x-2">
-            <p class="text-xl font-semibold">{{ $user->greeting['text'] }}</p>
+          <p class="text-xl font-semibold">{{ $user->greeting['text'] }}</p>
           <i data-lucide="{{ $user->greeting['icon'] }}" class="h-5 w-5 text-purple-600"></i>
         </div>
       </div>
       <div class="relative">
-        <i data-lucide="bell" class="h-6 w-6 text-gray-600"></i>
-        <div class="notification-dot"></div>
+        <button onclick="toggleNotificationPanel()" class="relative">
+          <i data-lucide="bell" class="h-6 w-6 text-gray-600"></i>
+          @if ($unreadCount > 0)
+            <div
+              class="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+              {{ $unreadCount > 99 ? '99+' : $unreadCount }}
+            </div>
+          @endif
+        </button>
       </div>
     </div>
   </div>
@@ -119,6 +126,7 @@
     </div>
   </div>
 
+
   <!-- Achievements and Events -->
   <div class="mb-15 px-4">
     <div class="mb-4 flex items-center justify-between">
@@ -141,6 +149,90 @@
         <div class="flex h-48 w-72 items-center justify-center rounded-xl bg-gray-200">
           <span class="font-medium text-gray-500">600 × 400</span>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Off Canvas Notification Panel -->
+  <div id="notificationPanel" class="fixed inset-0 z-50 hidden">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black bg-opacity-50" onclick="toggleNotificationPanel()"></div>
+
+    <!-- Panel -->
+    <div
+      class="fixed right-0 top-0 h-full w-96 transform bg-white shadow-xl transition-transform duration-300 ease-in-out">
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-gray-200 p-4">
+        <h2 class="text-lg font-semibold text-gray-900">Notifikasi</h2>
+        <div class="flex items-center space-x-2">
+          @if ($unreadCount > 0)
+            <button onclick="markAllAsRead()" class="text-sm text-blue-600 hover:text-blue-800">
+              <i class="fas fa-check-double mr-1"></i>
+              Tandai Semua Dibaca
+            </button>
+          @endif
+          <button onclick="toggleNotificationPanel()" class="text-gray-400 hover:text-gray-600">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="flex-1 overflow-y-auto">
+        @if ($latestNotifications->count() > 0)
+          <div class="divide-y divide-gray-200">
+            @foreach ($latestNotifications as $notification)
+              <div class="{{ !$notification->is_read ? 'bg-blue-50' : '' }} p-4 hover:bg-gray-50">
+                <div class="flex items-start space-x-3">
+                  <div class="flex-shrink-0">
+                    <div
+                      class="{{ $notification->getTypeClass() }} flex h-8 w-8 items-center justify-center rounded-full">
+                      <i class="fas fa-{{ $notification->getTypeIcon() }} text-xs"></i>
+                    </div>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center justify-between">
+                      <p class="truncate text-sm font-medium text-gray-900">{{ $notification->judul }}</p>
+                      @if (!$notification->is_read)
+                        <div class="h-2 w-2 rounded-full bg-blue-500"></div>
+                      @endif
+                    </div>
+                    <p class="mt-1 line-clamp-2 text-sm text-gray-600">{{ Str::limit($notification->pesan, 80) }}</p>
+                    <div class="mt-2 flex items-center justify-between">
+                      <span class="text-xs text-gray-500">{{ $notification->created_at->diffForHumans() }}</span>
+                      <div class="flex space-x-2">
+                        <a href="{{ route('notifikasi.show', $notification) }}"
+                          class="text-xs text-blue-600 hover:text-blue-800">
+                          Lihat
+                        </a>
+                        @if (!$notification->is_read)
+                          <button onclick="markAsRead({{ $notification->id }})"
+                            class="text-xs text-green-600 hover:text-green-800">
+                            Tandai Dibaca
+                          </button>
+                        @endif
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            @endforeach
+          </div>
+        @else
+          <div class="flex flex-col items-center justify-center py-12 text-center">
+            <i class="fas fa-bell-slash mb-4 text-4xl text-gray-300"></i>
+            <h3 class="mb-2 text-lg font-medium text-gray-900">Tidak ada notifikasi</h3>
+            <p class="text-sm text-gray-500">Belum ada notifikasi untuk Anda</p>
+          </div>
+        @endif
+      </div>
+
+      <!-- Footer -->
+      <div class="border-t border-gray-200 p-4">
+        <a href="{{ route('notifikasi.index') }}"
+          class="block w-full rounded-lg bg-blue-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-blue-700">
+          Lihat Semua Notifikasi
+        </a>
       </div>
     </div>
   </div>
@@ -177,5 +269,59 @@
         }
       });
     });
+
+    // Function untuk toggle notification panel
+    function toggleNotificationPanel() {
+      const panel = document.getElementById('notificationPanel');
+      panel.classList.toggle('hidden');
+    }
+
+    // Function untuk menandai notifikasi sebagai sudah dibaca
+    function markAsRead(notificationId) {
+      fetch(`/notifikasi/${notificationId}/mark-read`, {
+          method: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Content-Type': 'application/json',
+          },
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            location.reload();
+          } else {
+            alert('Gagal menandai notifikasi sebagai sudah dibaca');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Terjadi kesalahan');
+        });
+    }
+
+    // Function untuk menandai semua notifikasi sebagai sudah dibaca
+    function markAllAsRead() {
+      if (confirm('Apakah Anda yakin ingin menandai semua notifikasi sebagai sudah dibaca?')) {
+        fetch('/notifikasi/mark-all-read', {
+            method: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+              'Content-Type': 'application/json',
+            },
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              location.reload();
+            } else {
+              alert('Gagal menandai semua notifikasi sebagai sudah dibaca');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan');
+          });
+      }
+    }
   </script>
 @endsection

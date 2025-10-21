@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\MutationHistory;
+use App\Models\Notification;
 
 class DashboardController extends Controller
 {
@@ -14,7 +15,28 @@ class DashboardController extends Controller
     {
         $user = (object) session('auth');
         $user->greeting = $this->greeting();
-        return view('dashboard', compact('user'));
+
+        // Ambil 5 notifikasi terbaru
+        $query = Notification::query();
+
+        // Filter berdasarkan NISN jika user adalah siswa
+        if ($user->nisn) {
+            $query->byNisn($user->nisn);
+        }
+
+        // Filter berdasarkan merchant kode jika user adalah admin sekolah
+        if ($user->merchant_kode) {
+            $query->byMerchant($user->merchant_kode);
+        }
+
+        $latestNotifications = $query->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        // Hitung jumlah notifikasi yang belum dibaca
+        $unreadCount = $query->unread()->count();
+
+        return view('dashboard', compact('user', 'latestNotifications', 'unreadCount'));
     }
 
     /**

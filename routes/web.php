@@ -8,6 +8,7 @@ use App\Http\Controllers\TopupController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecurityController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
 
 Route::get('/', [HomeController::class, 'splash'])->name('splash');
 
@@ -48,4 +49,19 @@ Route::group(['prefix' => 'security'], function () {
     Route::get('/', [SecurityController::class, 'index'])->name('security.index');
     Route::put('/password', [SecurityController::class, 'updatePassword'])->name('security.updatePassword');
     Route::put('/pin', [SecurityController::class, 'updatePin'])->name('security.updatePin');
+});
+
+// Notification Routes
+Route::group(['prefix' => 'notifikasi', 'middleware' => 'auth'], function () {
+    Route::get('/', [NotificationController::class, 'index'])->name('notifikasi.index');
+    Route::get('/{notification}', [NotificationController::class, 'show'])->name('notifikasi.show');
+    Route::post('/{notification}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifikasi.mark-read');
+    Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifikasi.mark-all-read');
+    Route::delete('/{notification}', [NotificationController::class, 'destroy'])->name('notifikasi.destroy');
+});
+
+// API Routes untuk notifikasi
+Route::group(['prefix' => 'api/notifikasi', 'middleware' => 'auth'], function () {
+    Route::get('/latest', [NotificationController::class, 'getLatest'])->name('api.notifikasi.latest');
+    Route::get('/unread-count', [NotificationController::class, 'getUnreadCount'])->name('api.notifikasi.unread-count');
 });
