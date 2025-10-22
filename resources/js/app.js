@@ -9,7 +9,18 @@ import { initializeFlatpickr } from "./flatpickr-config.js";
 // Import custom Flatpickr styles
 import "../css/flatpickr-custom.css";
 
+// Import Select2
+import $ from "jquery";
+import "select2";
+import "select2/dist/css/select2.min.css";
+
+// Import custom Select2 styles
+import "../css/select2-custom.css";
+
 // Make flatpickr available globally
 window.flatpickr = flatpickr;
 window.flatpickr.l10ns.id = Indonesian;
 window.initializeFlatpickr = initializeFlatpickr;
+
+// Make jQuery and Select2 available globally
+window.$ = window.jQuery = $;

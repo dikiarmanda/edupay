@@ -1,0 +1,182 @@
+/* Select2 Custom Styling untuk EduPay */
+
+/* Container Select2 */
+.select2-container {
+    width: 100% !important;
+}
+
+.select2-container--default .select2-selection--single {
+    height: 42px;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background-color: white;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+}
+
+.select2-container--default .select2-selection--single:focus {
+    border-color: #7c3aed;
+    outline: none;
+    box-shadow: 0 0 0 1px #7c3aed;
+}
+
+.select2-container--default
+    .select2-selection--single
+    .select2-selection__rendered {
+    color: #374151;
+    line-height: 40px;
+    padding-left: 0;
+    padding-right: 20px;
+}
+
+.select2-container--default
+    .select2-selection--single
+    .select2-selection__placeholder {
+    color: #9ca3af;
+}
+
+.select2-container--default
+    .select2-selection--single
+    .select2-selection__arrow {
+    height: 40px;
+    right: 8px;
+}
+
+.select2-container--default
+    .select2-selection--single
+    .select2-selection__arrow
+    b {
+    border-color: #6b7280 transparent transparent transparent;
+    border-style: solid;
+    border-width: 5px 4px 0 4px;
+    height: 0;
+    left: 50%;
+    margin-left: -4px;
+    margin-top: -2px;
+    position: absolute;
+    top: 50%;
+    width: 0;
+}
+
+/* Dropdown Select2 */
+.select2-container--default .select2-dropdown {
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    background-color: white;
+}
+
+.select2-container--default .select2-results__option {
+    padding: 8px 12px;
+    color: #374151;
+    background-color: white;
+}
+
+.select2-container--default
+    .select2-results__option--highlighted[aria-selected] {
+    background-color: #7c3aed;
+    color: white;
+}
+
+.select2-container--default .select2-results__option[aria-selected="true"] {
+    background-color: #7c3aed;
+    color: white;
+}
+
+.select2-container--default
+    .select2-results__option[aria-selected="true"]:hover {
+    background-color: #6d28d9;
+    color: white;
+}
+
+/* Search box dalam dropdown */
+.select2-container--default .select2-search--dropdown .select2-search__field {
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    padding: 6px 8px;
+    margin: 4px;
+    width: calc(100% - 8px);
+}
+
+.select2-container--default
+    .select2-search--dropdown
+    .select2-search__field:focus {
+    border-color: #7c3aed;
+    outline: none;
+    box-shadow: 0 0 0 1px #7c3aed;
+}
+
+/* Loading state */
+.select2-container--default .select2-results__option[role="group"] {
+    padding: 0;
+    background-color: white !important;
+}
+
+.select2-container--default .select2-results__option[aria-disabled="true"] {
+    color: #9ca3af;
+    background-color: white !important;
+}
+
+/* Additional overrides to prevent dark backgrounds */
+.select2-container--default .select2-results {
+    background-color: white !important;
+}
+
+.select2-container--default .select2-results__options {
+    background-color: white !important;
+}
+
+.select2-container--default .select2-results__option--loading {
+    background-color: white !important;
+    color: #374151 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .select2-container--default .select2-selection--single {
+        height: 40px;
+        padding: 0 10px;
+    }
+
+    .select2-container--default
+        .select2-selection--single
+        .select2-selection__rendered {
+        line-height: 38px;
+        font-size: 14px;
+    }
+
+    .select2-container--default
+        .select2-selection--single
+        .select2-selection__arrow {
+        height: 38px;
+    }
+}
+
+/* Force light mode for Select2 */
+.select2-container--default .select2-dropdown {
+    background-color: white !important;
+}
+
+.select2-container--default .select2-results__option {
+    background-color: white !important;
+    color: #374151 !important;
+}
+
+.select2-container--default
+    .select2-results__option--highlighted[aria-selected] {
+    background-color: #7c3aed !important;
+    color: white !important;
+}
+
+.select2-container--default .select2-results__option[aria-selected="true"] {
+    background-color: #7c3aed !important;
+    color: white !important;
+}
+
+.select2-container--default
+    .select2-results__option[aria-selected="true"]:hover {
+    background-color: #6d28d9 !important;
+    color: white !important;
+}

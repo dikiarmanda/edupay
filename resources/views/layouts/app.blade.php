@@ -14,6 +14,44 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
+  <!-- Fallback jQuery and Select2 CDN -->
+  <script>
+    // Check if jQuery is available after Vite loads
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        if (typeof $ === 'undefined' || typeof $.fn.select2 === 'undefined') {
+          console.log('Loading jQuery and Select2 from CDN as fallback...');
+
+          // Load jQuery
+          const jqueryScript = document.createElement('script');
+          jqueryScript.src = 'https://code.jquery.com/jquery-3.7.1.min.js';
+          jqueryScript.onload = function() {
+            console.log('jQuery loaded from CDN');
+
+            // Load Select2 CSS
+            const select2CSS = document.createElement('link');
+            select2CSS.rel = 'stylesheet';
+            select2CSS.href = 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css';
+            document.head.appendChild(select2CSS);
+
+            // Load Select2 JS
+            const select2Script = document.createElement('script');
+            select2Script.src = 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js';
+            select2Script.onload = function() {
+              console.log('Select2 loaded from CDN');
+              // Trigger custom event to notify that libraries are ready
+              window.dispatchEvent(new CustomEvent('select2Ready'));
+            };
+            document.head.appendChild(select2Script);
+          };
+          document.head.appendChild(jqueryScript);
+        } else {
+          console.log('jQuery and Select2 already available from Vite');
+        }
+      }, 1000);
+    });
+  </script>
+
   <!-- Styles -->
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 

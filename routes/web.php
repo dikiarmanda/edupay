@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\BillController;
+use App\Http\Controllers\TagihanController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\TopupController;
@@ -36,8 +36,13 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/', [ProfileController::class, 'update'])->name('profil.update');
     });
 
-    // Bill Routes
-    Route::get('/tagihan', [BillController::class, 'index'])->name('tagihan.index');
+    // Tagihan Routes
+    Route::group(['prefix' => 'tagihan'], function () {
+        Route::get('/', [TagihanController::class, 'index'])->name('tagihan.index');
+        Route::get('/{tagihan}', [TagihanController::class, 'show'])->name('tagihan.show');
+        Route::post('/{tagihan}/bayar', [TagihanController::class, 'bayar'])->name('tagihan.bayar');
+        Route::get('/{tagihan}/struk', [TagihanController::class, 'struk'])->name('tagihan.struk');
+    });
 
     // Topup Routes
     Route::group(['prefix' => 'topup'], function () {
