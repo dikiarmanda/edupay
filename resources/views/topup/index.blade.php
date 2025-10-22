@@ -6,7 +6,7 @@
     <div class="bg-white shadow-sm">
       <div class="mx-auto max-w-md px-4 py-3">
         <div class="flex">
-          <button id="tab-isi-saldo" onclick="switchTab('isi-saldo')">
+          <button id="tab-topup" onclick="switchTab('topup')">
             Isi Saldo
           </button>
           <button id="tab-riwayat" onclick="switchTab('riwayat')">
@@ -19,7 +19,7 @@
     <!-- Main Content -->
     <div class="mx-auto max-w-md px-4 py-6">
       <!-- Isi Saldo Tab Content -->
-      <div id="content-isi-saldo" class="rounded-2xl bg-white p-6 shadow-sm">
+      <div id="content-topup" class="rounded-2xl bg-white p-6 shadow-sm">
         <!-- Title and Description -->
         <div class="mb-8">
           <h1 class="mb-2 text-2xl font-bold text-gray-900">Isi Saldo</h1>
@@ -128,8 +128,8 @@
   <script>
     // Tab switching functionality
     function switchTab(tabName) {
-      const contentElements = document.querySelectorAll('#content-isi-saldo, #content-riwayat');
-      const tabButtons = document.querySelectorAll('#tab-isi-saldo, #tab-riwayat');
+      const contentElements = document.querySelectorAll('#content-topup, #content-riwayat');
+      const tabButtons = document.querySelectorAll('#tab-topup, #tab-riwayat');
 
       contentElements.forEach(element => element.style.display = 'none');
       tabButtons.forEach(button => {
@@ -141,7 +141,7 @@
         }
       });
 
-      if (tabName === 'isi-saldo') {
+      if (tabName === 'topup') {
         contentElements[0].style.display = 'block';
         tabButtons[0].className = 'flex-1 rounded-lg bg-purple-100 px-4 py-2 text-center font-medium text-purple-700';
         tabButtons[0].classList.add('rounded-r-none');
@@ -154,7 +154,7 @@
 
     // Initialize with riwayat tab active
     document.addEventListener('DOMContentLoaded', function() {
-      switchTab('isi-saldo');
+      switchTab('topup');
       document.getElementById('navDashboard').classList.add('active');
     });
 
