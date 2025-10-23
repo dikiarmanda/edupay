@@ -73,23 +73,18 @@
           <div class="rounded-lg bg-white p-4 shadow-sm">
             <div class="flex items-start justify-between">
               <div class="flex-1">
-                <h3 class="font-bold text-gray-900">{{ $tagihan->tagihan }} - {{ $tagihan->nama_bulan }}
-                  {{ $tagihan->tahun_ajaran }}</h3>
+                <h3 class="font-bold text-gray-900">{{ $tagihan->tagihan }}
+                  {{ $tagihan->nama_bulan != null ? ' - ' . $tagihan->nama_bulan : '' }} </h3>
                 <div class="mt-2 flex items-center space-x-2">
                   <span
                     class="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-600">{{ $tagihan->status_pembayaran_text }}</span>
                   <span
                     class="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-600">{{ $tagihan->jenis_text }}</span>
                 </div>
-                <p class="mt-1 text-sm text-gray-500">Kelas: {{ $tagihan->kelas }}</p>
-                @if ($tagihan->sisa > 0)
-                  <p class="mt-1 text-sm text-orange-600">Sisa: Rp{{ number_format($tagihan->sisa, 0, ',', '.') }}</p>
-                @endif
               </div>
               <div class="text-right">
                 <p class="text-lg font-bold text-gray-900">Rp{{ number_format($tagihan->total, 0, ',', '.') }}</p>
-                <button
-                  onclick="openPaymentModal({{ $tagihan->id }}, '{{ $tagihan->tagihan }}', {{ $tagihan->sisa }})"
+                <button onclick="openPaymentModal({{ $tagihan->id }}, {{ $tagihan }})"
                   class="mt-2 rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">
                   Bayar
                 </button>
@@ -144,8 +139,8 @@
                 class="flex-1 rounded-lg bg-purple-600 px-4 py-2 font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
                 <span id="filterSubmitText">Terapkan Filter</span>
                 <svg id="filterLoadingIcon" class="hidden h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                    stroke-width="4"></circle>
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                  </circle>
                   <path class="opacity-75" fill="currentColor"
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                   </path>
@@ -198,7 +193,6 @@
                 </div>
                 <p class="mt-1 text-sm text-gray-500">Dibayar pada
                   {{ $tagihan->tgl_bayar ? $tagihan->tgl_bayar->format('d M Y') : '-' }}</p>
-                <p class="mt-1 text-sm text-gray-500">Kelas: {{ $tagihan->kelas }}</p>
               </div>
               <div class="text-right">
                 <p class="text-lg font-bold text-gray-900">Rp{{ number_format($tagihan->total, 0, ',', '.') }}</p>
@@ -225,12 +219,13 @@
   </div>
 
   <!-- Payment Modal -->
-  <div id="paymentModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-    <div class="flex min-h-screen items-center justify-center px-4 pb-20 pt-4 text-center sm:block sm:p-0">
-      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closePaymentModal()"></div>
+  <div id="paymentModal" class="z-60 fixed inset-0 hidden overflow-y-auto transition-all duration-300 ease-in-out">
+    <div class="flex min-h-screen items-center justify-center px-4 py-4">
+      <div class="fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity duration-300"
+        onclick="closePaymentModal()"></div>
 
-      <div
-        class="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
+      <div id="modalContent"
+        class="relative w-full max-w-lg scale-95 transform overflow-hidden rounded-lg bg-white text-left opacity-0 shadow-xl transition-all duration-300 ease-in-out">
         <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
           <div class="sm:flex sm:items-start">
             <div class="mt-3 w-full text-center sm:mt-0 sm:text-left">
@@ -238,36 +233,65 @@
 
               <form id="paymentForm" method="POST">
                 @csrf
-                <div class="mb-4">
-                  <label class="mb-2 block text-sm font-medium text-gray-700">Tagihan</label>
-                  <input type="text" id="tagihanName" readonly
-                    class="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-gray-600">
+
+                <!-- Informasi Tagihan dalam Table -->
+                <div class="mb-6 overflow-hidden rounded-lg border border-gray-200">
+                  <table class="w-full">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Detail</th>
+                        <th class="px-4 py-3 text-right text-sm font-medium text-gray-700">Nominal</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 bg-white">
+                      <tr>
+                        <td class="px-4 py-3 text-sm text-gray-900">Nama Tagihan</td>
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900" id="tagihanName"></td>
+                      </tr>
+                      <tr>
+                        <td class="px-4 py-3 text-sm text-gray-900">Nilai Tagihan</td>
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900" id="nilaiTagihan"></td>
+                      </tr>
+                      <tr>
+                        <td class="px-4 py-3 text-sm text-gray-900">Potongan</td>
+                        <td class="px-4 py-3 text-sm font-medium text-green-600" id="potonganTagihan"></td>
+                      </tr>
+                      <tr class="bg-gray-50">
+                        <td class="px-4 py-3 text-sm font-semibold text-gray-900">Total Bayar</td>
+                        <td class="px-4 py-3 text-sm font-bold text-purple-600" id="totalBayar"></td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
 
-                <div class="mb-4">
-                  <label class="mb-2 block text-sm font-medium text-gray-700">Sisa Tagihan</label>
-                  <input type="text" id="sisaTagihan" readonly
-                    class="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-gray-600">
+                <!-- Informasi Saldo -->
+                <div class="mb-6 overflow-hidden rounded-lg border border-gray-200">
+                  <table class="w-full">
+                    <thead class="bg-blue-50">
+                      <tr>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-blue-700">Informasi Saldo</th>
+                        <th class="px-4 py-3 text-right text-sm font-medium text-blue-700">Nominal</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 bg-white">
+                      <tr>
+                        <td class="px-4 py-3 text-sm text-gray-900">Saldo Tersedia</td>
+                        <td class="px-4 py-3 text-sm font-medium text-blue-600" id="saldoTersedia"></td>
+                      </tr>
+                      <tr>
+                        <td class="px-4 py-3 text-sm text-gray-900">Jumlah Bayar</td>
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900" id="jumlahBayarDisplay"></td>
+                      </tr>
+                      <tr class="bg-gray-50">
+                        <td class="px-4 py-3 text-sm font-semibold text-gray-900">Sisa Saldo</td>
+                        <td class="px-4 py-3 text-sm font-bold text-green-600" id="sisaSaldo"></td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
 
-                <div class="mb-4">
-                  <label class="mb-2 block text-sm font-medium text-gray-700">Jumlah Bayar <span
-                      class="text-red-500">*</span></label>
-                  <input type="number" id="jumlahBayar" name="jumlah_bayar" required min="1"
-                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500">
-                </div>
-
-                <div class="mb-4">
-                  <label class="mb-2 block text-sm font-medium text-gray-700">Metode Pembayaran <span
-                      class="text-red-500">*</span></label>
-                  <select name="metode_pembayaran" required
-                    class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500">
-                    <option value="">Pilih Metode</option>
-                    <option value="transfer">Transfer Bank</option>
-                    <option value="bank">Bank Transfer</option>
-                    <option value="ewallet">E-Wallet</option>
-                  </select>
-                </div>
+                <!-- Hidden input untuk jumlah bayar -->
+                <input type="hidden" id="jumlahBayar" name="jumlah_bayar" value="">
               </form>
             </div>
           </div>
@@ -292,7 +316,8 @@
 
   <script>
     let currentTagihanId = null;
-    let currentSisaTagihan = 0;
+    let currentTagihan = 0;
+    let currentSaldo = {{ $saldo }};
     let select2RetryCount = 0;
     const maxRetries = 10;
 
@@ -545,22 +570,58 @@
     }
 
     // Payment modal functions
-    function openPaymentModal(tagihanId, tagihanName, sisaTagihan) {
+    function openPaymentModal(tagihanId, dataTagihan) {
       currentTagihanId = tagihanId;
-      currentSisaTagihan = sisaTagihan;
+      currentTagihan = dataTagihan;
 
-      document.getElementById('tagihanName').value = tagihanName;
-      document.getElementById('sisaTagihan').value = 'Rp' + sisaTagihan.toLocaleString('id-ID');
-      document.getElementById('jumlahBayar').max = sisaTagihan;
-      document.getElementById('jumlahBayar').value = '';
+      // Hitung nilai tagihan, potongan, dan total
+      const nilaiTagihan = dataTagihan.total || 0;
+      const potongan = dataTagihan.potongan || 0;
+      const totalBayar = nilaiTagihan - potongan;
 
-      document.getElementById('paymentModal').classList.remove('hidden');
+      // Isi data ke table
+      document.getElementById('tagihanName').textContent = dataTagihan.tagihan || 'Tagihan';
+      document.getElementById('nilaiTagihan').textContent = 'Rp' + nilaiTagihan.toLocaleString('id-ID');
+      document.getElementById('potonganTagihan').textContent = potongan > 0 ? 'Rp' + potongan.toLocaleString('id-ID') :
+        'Rp0';
+      document.getElementById('totalBayar').textContent = 'Rp' + totalBayar.toLocaleString('id-ID');
+
+      // Isi informasi saldo
+      document.getElementById('saldoTersedia').textContent = 'Rp' + currentSaldo.toLocaleString('id-ID');
+      document.getElementById('jumlahBayarDisplay').textContent = 'Rp' + totalBayar.toLocaleString('id-ID');
+      document.getElementById('sisaSaldo').textContent = 'Rp' + (currentSaldo - totalBayar).toLocaleString('id-ID');
+
+      // Set hidden input untuk jumlah bayar
+      document.getElementById('jumlahBayar').value = totalBayar;
+
+      // Tampilkan modal dengan transisi
+      const modal = document.getElementById('paymentModal');
+      const modalContent = document.getElementById('modalContent');
+
+      modal.classList.remove('hidden');
+
+      // Trigger animation setelah modal ditampilkan
+      setTimeout(() => {
+        modalContent.classList.remove('scale-95', 'opacity-0');
+        modalContent.classList.add('scale-100', 'opacity-100');
+      }, 10);
     }
 
+
     function closePaymentModal() {
-      document.getElementById('paymentModal').classList.add('hidden');
-      currentTagihanId = null;
-      currentSisaTagihan = 0;
+      const modal = document.getElementById('paymentModal');
+      const modalContent = document.getElementById('modalContent');
+
+      // Trigger animation untuk menutup modal
+      modalContent.classList.remove('scale-100', 'opacity-100');
+      modalContent.classList.add('scale-95', 'opacity-0');
+
+      // Sembunyikan modal setelah animasi selesai
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        currentTagihanId = null;
+        currentTagihan = 0;
+      }, 300);
     }
 
     function submitPayment() {
@@ -573,9 +634,13 @@
       }
 
       const jumlahBayar = parseInt(document.getElementById('jumlahBayar').value);
+      const nilaiTagihan = currentTagihan.total || 0;
+      const potongan = currentTagihan.potongan || 0;
+      const totalBayar = nilaiTagihan - potongan;
 
-      if (jumlahBayar > currentSisaTagihan) {
-        showToast('Jumlah bayar tidak boleh melebihi sisa tagihan', 'error');
+      // Validasi saldo tidak mencukupi
+      if (totalBayar > currentSaldo) {
+        showToast('Saldo tidak mencukupi', 'error');
         return;
       }
 

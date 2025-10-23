@@ -9,6 +9,10 @@ class TagihanController extends Controller
 {
     public function index(Request $request)
     {
+        // Ambil data user dari session
+        $user = (object) session('auth');
+        $saldo = $user->saldo ?? 0;
+
         // Ambil data tagihan siswa yang aktif
         $tagihanBelumLunas = TagihanSiswa::aktif()
             ->belumLunas()
@@ -55,7 +59,7 @@ class TagihanController extends Controller
             ->sort()
             ->values();
 
-        return view('tagihan.index', compact('tagihanBelumLunas', 'tagihanLunas', 'bulanList', 'tahunList'));
+        return view('tagihan.index', compact('tagihanBelumLunas', 'tagihanLunas', 'bulanList', 'tahunList', 'saldo'));
     }
 
     public function show($id)
@@ -72,7 +76,6 @@ class TagihanController extends Controller
             // Validasi pembayaran
             $request->validate([
                 'jumlah_bayar' => 'required|numeric|min:1|max:' . $tagihan->sisa,
-                'metode_pembayaran' => 'required|string|in:transfer,bank,ewallet',
             ]);
 
             $jumlahBayar = $request->jumlah_bayar;
