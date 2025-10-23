@@ -39,9 +39,9 @@ Route::middleware(['auth'])->group(function () {
     // Tagihan Routes
     Route::group(['prefix' => 'tagihan'], function () {
         Route::get('/', [TagihanController::class, 'index'])->name('tagihan.index');
-        Route::get('/{tagihan}', [TagihanController::class, 'show'])->name('tagihan.show');
         Route::post('/{tagihan}/bayar', [TagihanController::class, 'bayar'])->name('tagihan.bayar');
         Route::get('/{tagihan}/struk', [TagihanController::class, 'struk'])->name('tagihan.struk');
+        Route::get('/{tagihan}/download-pdf', [TagihanController::class, 'downloadPdf'])->name('tagihan.download-pdf');
     });
 
     // Topup Routes

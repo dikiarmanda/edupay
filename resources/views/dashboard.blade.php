@@ -154,9 +154,10 @@
   </div>
 
   <!-- Off Canvas Notification Panel -->
-  <div id="notificationPanel" class="fixed inset-0 z-50 hidden">
+  <div id="notificationPanel" class="z-51 fixed inset-0 hidden transition-all duration-300 ease-in-out">
     <!-- Backdrop -->
-    <div class="fixed inset-0 bg-black bg-opacity-50" onclick="toggleNotificationPanel()"></div>
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300"
+      onclick="toggleNotificationPanel()"></div>
 
     <!-- Panel -->
     <div

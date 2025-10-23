@@ -192,7 +192,7 @@
                     class="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-600">{{ $tagihan->jenis_text }}</span>
                 </div>
                 <p class="mt-1 text-sm text-gray-500">Dibayar pada
-                  {{ $tagihan->tgl_bayar ? $tagihan->tgl_bayar->format('d M Y') : '-' }}</p>
+                  {{ $tagihan->tgl_bayar ? $tagihan->tgl_bayar->translatedFormat('d M Y') : '-' }}</p>
               </div>
               <div class="text-right">
                 <p class="text-lg font-bold text-gray-900">Rp{{ number_format($tagihan->total, 0, ',', '.') }}</p>
@@ -219,21 +219,18 @@
   </div>
 
   <!-- Payment Modal -->
-  <div id="paymentModal" class="z-60 fixed inset-0 hidden overflow-y-auto transition-all duration-300 ease-in-out">
+  <div id="paymentModal" class="z-51 fixed inset-0 hidden overflow-y-auto transition-all duration-300 ease-in-out">
     <div class="flex min-h-screen items-center justify-center px-4 py-4">
       <div class="fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity duration-300"
         onclick="closePaymentModal()"></div>
-
       <div id="modalContent"
         class="relative w-full max-w-lg scale-95 transform overflow-hidden rounded-lg bg-white text-left opacity-0 shadow-xl transition-all duration-300 ease-in-out">
         <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
           <div class="sm:flex sm:items-start">
             <div class="mt-3 w-full text-center sm:mt-0 sm:text-left">
               <h3 class="mb-4 text-lg font-medium leading-6 text-gray-900">Pembayaran Tagihan</h3>
-
               <form id="paymentForm" method="POST">
                 @csrf
-
                 <!-- Informasi Tagihan dalam Table -->
                 <div class="mb-6 overflow-hidden rounded-lg border border-gray-200">
                   <table class="w-full">
@@ -246,19 +243,19 @@
                     <tbody class="divide-y divide-gray-200 bg-white">
                       <tr>
                         <td class="px-4 py-3 text-sm text-gray-900">Nama Tagihan</td>
-                        <td class="px-4 py-3 text-sm font-medium text-gray-900" id="tagihanName"></td>
+                        <td class="px-4 py-3 text-right text-sm font-medium text-gray-900" id="tagihanName"></td>
                       </tr>
                       <tr>
                         <td class="px-4 py-3 text-sm text-gray-900">Nilai Tagihan</td>
-                        <td class="px-4 py-3 text-sm font-medium text-gray-900" id="nilaiTagihan"></td>
+                        <td class="px-4 py-3 text-right text-sm font-medium text-gray-900" id="nilaiTagihan"></td>
                       </tr>
                       <tr>
                         <td class="px-4 py-3 text-sm text-gray-900">Potongan</td>
-                        <td class="px-4 py-3 text-sm font-medium text-green-600" id="potonganTagihan"></td>
+                        <td class="px-4 py-3 text-right text-sm font-medium text-gray-900" id="potonganTagihan"></td>
                       </tr>
                       <tr class="bg-gray-50">
                         <td class="px-4 py-3 text-sm font-semibold text-gray-900">Total Bayar</td>
-                        <td class="px-4 py-3 text-sm font-bold text-purple-600" id="totalBayar"></td>
+                        <td class="px-4 py-3 text-right text-sm font-bold text-purple-600" id="totalBayar"></td>
                       </tr>
                     </tbody>
                   </table>
@@ -269,22 +266,14 @@
                   <table class="w-full">
                     <thead class="bg-blue-50">
                       <tr>
-                        <th class="px-4 py-3 text-left text-sm font-medium text-blue-700">Informasi Saldo</th>
-                        <th class="px-4 py-3 text-right text-sm font-medium text-blue-700">Nominal</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Informasi Saldo</th>
+                        <th class="px-4 py-3 text-right text-sm font-medium text-gray-700">Nominal</th>
                       </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 bg-white">
-                      <tr>
-                        <td class="px-4 py-3 text-sm text-gray-900">Saldo Tersedia</td>
-                        <td class="px-4 py-3 text-sm font-medium text-blue-600" id="saldoTersedia"></td>
-                      </tr>
-                      <tr>
-                        <td class="px-4 py-3 text-sm text-gray-900">Jumlah Bayar</td>
-                        <td class="px-4 py-3 text-sm font-medium text-gray-900" id="jumlahBayarDisplay"></td>
-                      </tr>
                       <tr class="bg-gray-50">
                         <td class="px-4 py-3 text-sm font-semibold text-gray-900">Sisa Saldo</td>
-                        <td class="px-4 py-3 text-sm font-bold text-green-600" id="sisaSaldo"></td>
+                        <td class="px-4 py-3 text-right text-sm font-bold text-green-600" id="sisaSaldo"></td>
                       </tr>
                     </tbody>
                   </table>
@@ -440,7 +429,7 @@
 
     // Listen for Select2 ready event from CDN fallback
     window.addEventListener('select2Ready', function() {
-      console.log('Select2 ready event received, attempting initialization...');
+      // console.log('Select2 ready event received, attempting initialization...');
       setTimeout(() => {
         initializeSelect2();
       }, 100);
@@ -451,19 +440,18 @@
       if (typeof $ === 'undefined' || typeof $.fn.select2 === 'undefined') {
         select2RetryCount++;
         if (select2RetryCount <= maxRetries) {
-          console.log(`jQuery or Select2 not available, retrying in 500ms... (${select2RetryCount}/${maxRetries})`);
+          // console.log(`jQuery or Select2 not available, retrying in 500ms... (${select2RetryCount}/${maxRetries})`);
           setTimeout(() => {
             initializeSelect2();
           }, 500);
         } else {
-          console.log('Max retries reached. jQuery or Select2 still not available.');
-          console.log('Available globals:', Object.keys(window).filter(key => key.includes('$') || key.includes(
-            'jQuery') || key.includes('select2')));
+          // console.log('Max retries reached. jQuery or Select2 still not available.');
+          // console.log('Available globals:', Object.keys(window).filter(key => key.includes('$') || key.includes('jQuery') || key.includes('select2')));
         }
         return;
       }
 
-      console.log('jQuery and Select2 are available, proceeding with initialization');
+      // console.log('jQuery and Select2 are available, proceeding with initialization');
       select2RetryCount = 0; // Reset counter on success
 
       // Check if elements exist
@@ -471,7 +459,7 @@
       const tahunElement = document.getElementById('filterTahun');
 
       if (!bulanElement || !tahunElement) {
-        console.log('Filter elements not found');
+        // console.log('Filter elements not found');
         return;
       }
 
@@ -484,7 +472,7 @@
           $('#filterTahun').select2('destroy');
         }
       } catch (e) {
-        console.log('Error destroying existing Select2:', e);
+        // console.log('Error destroying existing Select2:', e);
       }
 
       // Initialize Select2 for bulan filter
@@ -502,9 +490,9 @@
             }
           }
         });
-        console.log('Select2 bulan initialized');
+        // console.log('Select2 bulan initialized');
       } catch (e) {
-        console.log('Error initializing Select2 bulan:', e);
+        // console.log('Error initializing Select2 bulan:', e);
       }
 
       // Initialize Select2 for tahun filter
@@ -522,18 +510,18 @@
             }
           }
         });
-        console.log('Select2 tahun initialized');
+        // console.log('Select2 tahun initialized');
       } catch (e) {
-        console.log('Error initializing Select2 tahun:', e);
+        // console.log('Error initializing Select2 tahun:', e);
       }
 
       // Handle change events for auto-submit
       $('#filterBulan, #filterTahun').off('change.select2').on('change.select2', function() {
-        console.log('Select2 value changed:', $(this).val());
+        // console.log('Select2 value changed:', $(this).val());
         autoSubmitFilter();
       });
 
-      console.log('Select2 initialization completed');
+      // console.log('Select2 initialization completed');
     }
 
     function destroySelect2() {
@@ -545,9 +533,9 @@
         if ($('#filterTahun').length && $('#filterTahun').hasClass('select2-hidden-accessible')) {
           $('#filterTahun').select2('destroy');
         }
-        console.log('Select2 destroyed successfully');
+        // console.log('Select2 destroyed successfully');
       } catch (error) {
-        console.log('Error destroying Select2:', error);
+        // console.log('Error destroying Select2:', error);
       }
     }
 
@@ -555,17 +543,17 @@
       const bulanSelect2 = $('#filterBulan').hasClass('select2-hidden-accessible');
       const tahunSelect2 = $('#filterTahun').hasClass('select2-hidden-accessible');
 
-      console.log('Select2 Status Check:');
-      console.log('- Bulan Select2:', bulanSelect2 ? 'Working' : 'Not Working');
-      console.log('- Tahun Select2:', tahunSelect2 ? 'Working' : 'Not Working');
+      // console.log('Select2 Status Check:');
+      // console.log('- Bulan Select2:', bulanSelect2 ? 'Working' : 'Not Working');
+      // console.log('- Tahun Select2:', tahunSelect2 ? 'Working' : 'Not Working');
 
       if (!bulanSelect2 || !tahunSelect2) {
-        console.log('Select2 not working properly, attempting re-initialization...');
+        // console.log('Select2 not working properly, attempting re-initialization...');
         setTimeout(() => {
           initializeSelect2();
         }, 500);
       } else {
-        console.log('Select2 is working correctly!');
+        // console.log('Select2 is working correctly!');
       }
     }
 
@@ -575,21 +563,19 @@
       currentTagihan = dataTagihan;
 
       // Hitung nilai tagihan, potongan, dan total
-      const nilaiTagihan = dataTagihan.total || 0;
-      const potongan = dataTagihan.potongan || 0;
+      const nilaiTagihan = parseInt(dataTagihan.total) || 0;
+      const potongan = parseInt(dataTagihan.potongan) || 0;
       const totalBayar = nilaiTagihan - potongan;
 
       // Isi data ke table
       document.getElementById('tagihanName').textContent = dataTagihan.tagihan || 'Tagihan';
-      document.getElementById('nilaiTagihan').textContent = 'Rp' + nilaiTagihan.toLocaleString('id-ID');
-      document.getElementById('potonganTagihan').textContent = potongan > 0 ? 'Rp' + potongan.toLocaleString('id-ID') :
-        'Rp0';
-      document.getElementById('totalBayar').textContent = 'Rp' + totalBayar.toLocaleString('id-ID');
+      document.getElementById('nilaiTagihan').textContent = 'Rp\t' + nilaiTagihan.toLocaleString('id-ID');
+      document.getElementById('potonganTagihan').textContent = potongan > 0 ? 'Rp\t' + potongan.toLocaleString('id-ID') :
+        `Rp\t0`;
+      document.getElementById('totalBayar').textContent = 'Rp\t' + totalBayar.toLocaleString('id-ID');
 
       // Isi informasi saldo
-      document.getElementById('saldoTersedia').textContent = 'Rp' + currentSaldo.toLocaleString('id-ID');
-      document.getElementById('jumlahBayarDisplay').textContent = 'Rp' + totalBayar.toLocaleString('id-ID');
-      document.getElementById('sisaSaldo').textContent = 'Rp' + (currentSaldo - totalBayar).toLocaleString('id-ID');
+      document.getElementById('sisaSaldo').textContent = 'Rp\t' + (currentSaldo - totalBayar).toLocaleString('id-ID');
 
       // Set hidden input untuk jumlah bayar
       document.getElementById('jumlahBayar').value = totalBayar;

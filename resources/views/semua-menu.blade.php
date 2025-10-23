@@ -20,7 +20,7 @@
 
   <!-- All Menu Grid -->
   <div class="px-4 py-6">
-    <div class="grid grid-cols-3 gap-4">
+    <div class="grid grid-cols-3 gap-4 mb-15">
       <!-- Row 1 -->
       <!-- Tagihan -->
       <a href="{{ route('tagihan.index') }}" class="flex flex-col items-center space-y-1">

@@ -11,22 +11,19 @@
   <link rel="preconnect" href="https://fonts.bunny.net">
   <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700" rel="stylesheet" />
 
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-
   <!-- Fallback jQuery and Select2 CDN -->
   <script>
     // Check if jQuery is available after Vite loads
     window.addEventListener('load', function() {
       setTimeout(function() {
         if (typeof $ === 'undefined' || typeof $.fn.select2 === 'undefined') {
-          console.log('Loading jQuery and Select2 from CDN as fallback...');
+          //   console.log('Loading jQuery and Select2 from CDN as fallback...');
 
           // Load jQuery
           const jqueryScript = document.createElement('script');
           jqueryScript.src = 'https://code.jquery.com/jquery-3.7.1.min.js';
           jqueryScript.onload = function() {
-            console.log('jQuery loaded from CDN');
+            // console.log('jQuery loaded from CDN');
 
             // Load Select2 CSS
             const select2CSS = document.createElement('link');
@@ -38,7 +35,7 @@
             const select2Script = document.createElement('script');
             select2Script.src = 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js';
             select2Script.onload = function() {
-              console.log('Select2 loaded from CDN');
+              //   console.log('Select2 loaded from CDN');
               // Trigger custom event to notify that libraries are ready
               window.dispatchEvent(new CustomEvent('select2Ready'));
             };
@@ -46,7 +43,7 @@
           };
           document.head.appendChild(jqueryScript);
         } else {
-          console.log('jQuery and Select2 already available from Vite');
+          //   console.log('jQuery and Select2 already available from Vite');
         }
       }, 1000);
     });
@@ -184,8 +181,27 @@
   </div>
 
   <script>
-    // Initialize Lucide icons
-    lucide.createIcons();
+    // Initialize Lucide icons with error handling
+    document.addEventListener('DOMContentLoaded', function() {
+      try {
+        if (typeof window.initializeLucideIcons === 'function') {
+          window.initializeLucideIcons();
+        } else {
+          //   console.log('Lucide icons will be initialized by Vite bundle');
+        }
+      } catch (error) {
+        // console.error('Error initializing Lucide icons:', error);
+        // Fallback: try to initialize manually if available
+        try {
+          if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+            lucide.createIcons();
+            // console.log('Lucide icons initialized with fallback method');
+          }
+        } catch (fallbackError) {
+          //   console.error('Fallback initialization also failed:', fallbackError);
+        }
+      }
+    });
   </script>
 
   @stack('scripts')

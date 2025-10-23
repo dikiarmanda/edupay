@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\TagihanSiswa;
 use Illuminate\Http\Request;
+use Spatie\Browsershot\Browsershot;
+use Illuminate\Support\Facades\Log;
 
 class TagihanController extends Controller
 {
@@ -62,12 +64,6 @@ class TagihanController extends Controller
         return view('tagihan.index', compact('tagihanBelumLunas', 'tagihanLunas', 'bulanList', 'tahunList', 'saldo'));
     }
 
-    public function show($id)
-    {
-        $tagihan = TagihanSiswa::findOrFail($id);
-        return view('tagihan.show', compact('tagihan'));
-    }
-
     public function bayar(Request $request, $id)
     {
         try {
@@ -75,20 +71,37 @@ class TagihanController extends Controller
 
             // Validasi pembayaran
             $request->validate([
-                'jumlah_bayar' => 'required|numeric|min:1|max:' . $tagihan->sisa,
+                'jumlah_bayar' => 'required|numeric|min:1|max:' . $tagihan->total,
             ]);
 
             $jumlahBayar = $request->jumlah_bayar;
-            $sisaBaru = $tagihan->sisa - $jumlahBayar;
             $bayarBaru = $tagihan->bayar + $jumlahBayar;
-            $isLunas = $sisaBaru <= 0;
 
             // Update status pembayaran
             $tagihan->update([
                 'bayar' => $bayarBaru,
-                'sisa' => $sisaBaru,
-                'status_pembayaran' => $isLunas ? '1' : '0',
-                'tgl_bayar' => $isLunas ? now() : null,
+                'status_pembayaran' => '1',
+                'tgl_bayar' => now(),
+            ]);
+
+            // Tambahkan transaksi ke mutation_history
+            $tagihan->mutationHistory()->create([
+                'nisn' => $tagihan->nisn,
+                'customer_name' => $tagihan->nama,
+                'information' => $tagihan->tagihan,
+                'debet' => $jumlahBayar,
+                'kredit' => 0,
+                'date_trx' => now(),
+                'merchant_name' => $tagihan->merchant_kode ?? 'EDUPAY',
+            ]);
+
+            // Tambahkan notifikasi untuk pembayaran tagihan
+            $tagihan->notifications()->create([
+                'merchant_kode' => $tagihan->merchant_kode ?? 'EDUPAY',
+                'judul' => 'Pembayaran Tagihan Berhasil',
+                'pesan' => "Pembayaran tagihan {$tagihan->jenis} sebesar Rp " . number_format($jumlahBayar, 0, ',', '.') . " berhasil diproses.",
+                'tipe' => 'success',
+                'is_read' => false,
             ]);
 
             return response()->json([
@@ -97,12 +110,11 @@ class TagihanController extends Controller
                 'data' => [
                     'tagihan_id' => $tagihan->id,
                     'jumlah_bayar' => $jumlahBayar,
-                    'sisa' => $sisaBaru,
-                    'is_lunas' => $isLunas
                 ]
             ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::info('Validasi gagal: ' . $e->getMessage(), $e->errors());
             return response()->json([
                 'success' => false,
                 'message' => 'Validasi gagal',
@@ -125,5 +137,26 @@ class TagihanController extends Controller
         }
 
         return view('tagihan.struk', compact('tagihan'));
+    }
+
+    public function downloadPdf($id)
+    {
+        $tagihan = TagihanSiswa::findOrFail($id);
+
+        if (!$tagihan->isLunas()) {
+            return redirect()->route('tagihan.index')->with('error', 'Tagihan belum lunas');
+        }
+
+        $html = view('tagihan.struk-pdf', compact('tagihan'))->render();
+
+        $pdf = Browsershot::html($html)
+            ->format('A4')
+            ->margins(0, 0, 0, 0)
+            ->waitUntilNetworkIdle()
+            ->pdf();
+
+        return response($pdf)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="struk-' . $tagihan->id . '.pdf"');
     }
 }

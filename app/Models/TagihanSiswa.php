@@ -34,11 +34,11 @@ class TagihanSiswa extends Model
     ];
 
     protected $casts = [
-        'total' => 'decimal:2',
-        'nilai' => 'decimal:2',
-        'potongan' => 'decimal:2',
-        'bayar' => 'decimal:2',
-        'sisa' => 'decimal:2',
+        'total' => 'decimal:0',
+        'nilai' => 'decimal:0',
+        'potongan' => 'decimal:0',
+        'bayar' => 'decimal:0',
+        'sisa' => 'decimal:0',
         'tahun_ajaran' => 'integer',
         'tgl_bayar' => 'datetime',
         'created_at' => 'datetime',
@@ -100,5 +100,17 @@ class TagihanSiswa extends Model
         ];
 
         return $bulan[$this->bulan] ?? $this->bulan;
+    }
+
+    // Relationship dengan MutationHistory
+    public function mutationHistory()
+    {
+        return $this->hasMany(MutationHistory::class, 'nisn', 'nisn');
+    }
+
+    // Relationship dengan Notification
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'nisn', 'nisn');
     }
 }

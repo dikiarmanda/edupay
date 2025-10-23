@@ -17,6 +17,12 @@ import "select2/dist/css/select2.min.css";
 // Import custom Select2 styles
 import "../css/select2-custom.css";
 
+import { createIcons, icons } from "lucide";
+
+document.addEventListener("DOMContentLoaded", () => {
+    createIcons({ icons });
+});
+
 // Make flatpickr available globally
 window.flatpickr = flatpickr;
 window.flatpickr.l10ns.id = Indonesian;

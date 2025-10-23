@@ -1,5 +1,5 @@
 <!-- Toast Container -->
-<div id="toast-container" class="fixed right-4 top-4 z-50 space-y-2"></div>
+<div id="toast-container" class="fixed right-4 top-4 z-100 space-y-2"></div>
 
 <script>
   // Toast function
