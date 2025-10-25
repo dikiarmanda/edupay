@@ -60,72 +60,26 @@
   <div class="mb-6 px-4">
     <h3 class="mb-4 text-lg font-bold text-gray-900">Menu Utama</h3>
     <div class="grid grid-cols-4 gap-4">
-      <!-- Tagihan -->
-      <a href="{{ route('tagihan.index') }}" class="flex flex-col items-center space-y-1">
-        <div class="flex h-20 w-20 items-center justify-center rounded-xl bg-blue-100">
-          <i data-lucide="credit-card" class="h-10 w-10 text-blue-600"></i>
-        </div>
-        <span class="text-xs font-medium text-gray-700">Tagihan</span>
-      </a>
 
-      <!-- Isi Saldo -->
-      <a href="{{ route('topup.index') }}" class="flex flex-col items-center space-y-1">
-        <div class="flex h-20 w-20 items-center justify-center rounded-xl bg-green-100">
-          <i data-lucide="wallet" class="h-10 w-10 text-green-600"></i>
-        </div>
-        <span class="text-xs font-medium text-gray-700">Isi Saldo</span>
-      </a>
+      @foreach ($limitedMenus  as $menu)
+          <a href="{{ route($menu->route) }}" class="flex flex-col items-center space-y-1">
+            <div class="bg-{{ $menu->color }}-100 flex h-20 w-20 items-center justify-center rounded-xl">
+              <i data-lucide="{{ $menu->icon }}" class="text-{{ $menu->color }}-600 h-10 w-10"></i>
+            </div>
+            <span class="text-xs font-medium text-gray-700">{{ $menu->label }}</span>
+          </a>
+      @endforeach
 
-      <!-- Donasi -->
-      <div class="flex flex-col items-center space-y-1">
-        <div class="flex h-20 w-20 items-center justify-center rounded-xl bg-red-100">
-          <i data-lucide="heart" class="h-10 w-10 text-red-600"></i>
-        </div>
-        <span class="text-xs font-medium text-gray-700">Donasi</span>
-      </div>
-
-      <!-- Kantin -->
-      <div class="flex flex-col items-center space-y-1">
-        <div class="flex h-20 w-20 items-center justify-center rounded-xl bg-orange-100">
-          <i data-lucide="utensils" class="h-10 w-10 text-orange-600"></i>
-        </div>
-        <span class="text-xs font-medium text-gray-700">Kantin</span>
-      </div>
-
-      <!-- Antar Jemput -->
-      <div class="flex flex-col items-center space-y-1">
-        <div class="flex h-20 w-20 items-center justify-center rounded-xl bg-purple-100">
-          <i data-lucide="bus" class="h-10 w-10 text-purple-600"></i>
-        </div>
-        <span class="text-xs font-medium text-gray-700">Antar Jemput</span>
-      </div>
-
-      <!-- Pengumuman -->
-      <div class="flex flex-col items-center space-y-1">
-        <div class="flex h-20 w-20 items-center justify-center rounded-xl bg-teal-100">
-          <i data-lucide="megaphone" class="h-10 w-10 text-teal-600"></i>
-        </div>
-        <span class="text-xs font-medium text-gray-700">Pengumuman</span>
-      </div>
-
-      <!-- Berita -->
-      <div class="flex flex-col items-center space-y-1">
-        <div class="flex h-20 w-20 items-center justify-center rounded-xl bg-blue-100">
-          <i data-lucide="newspaper" class="h-10 w-10 text-blue-600"></i>
-        </div>
-        <span class="text-xs font-medium text-gray-700">Berita</span>
-      </div>
-
-      <!-- Lihat Semua -->
-      <a href="{{ route('semua-menu') }}" class="flex flex-col items-center space-y-1">
-        <div class="flex h-20 w-20 items-center justify-center rounded-xl bg-gray-100">
-          <i data-lucide="grid-3x3" class="h-10 w-10 text-gray-600"></i>
-        </div>
-        <span class="text-xs font-medium text-gray-700">Lihat Semua</span>
-      </a>
+      @if ($hasMore)
+        <a href="{{ route('semua-menu') }}" class="flex flex-col items-center space-y-1">
+          <div class="flex h-20 w-20 items-center justify-center rounded-xl bg-gray-100">
+            <i data-lucide="grid-3x3" class="h-10 w-10 text-gray-600"></i>
+          </div>
+          <span class="text-xs font-medium text-gray-700">Lihat Semua</span>
+        </a>
+      @endif
     </div>
   </div>
-
 
   <!-- Achievements and Events -->
   <div class="mb-15 px-4">
@@ -168,7 +122,7 @@
         <div class="flex items-center space-x-2">
           @if ($unreadCount > 0)
             <button onclick="markAllAsRead()" class="text-sm text-blue-600 hover:text-blue-800">
-              <i class="fas fa-check-double mr-1"></i>
+              <i data-lucide="check-check" class="inline"></i>
               Tandai Semua Dibaca
             </button>
           @endif
@@ -178,7 +132,7 @@
         </div>
       </div>
 
-      <!-- Content -->
+      <!-- Notification Content -->
       <div class="flex-1 overflow-y-auto">
         @if ($latestNotifications->count() > 0)
           <div class="divide-y divide-gray-200">
@@ -188,7 +142,7 @@
                   <div class="flex-shrink-0">
                     <div
                       class="{{ $notification->getTypeClass() }} flex h-8 w-8 items-center justify-center rounded-full">
-                      <i class="fas fa-{{ $notification->getTypeIcon() }} text-xs"></i>
+                      <i data-lucide="{{ $notification->getTypeIcon() }}" class="text-xs"></i>
                     </div>
                   </div>
                   <div class="min-w-0 flex-1">
@@ -239,38 +193,6 @@
   </div>
 
   <script>
-    // Initialize Lucide icons
-    lucide.createIcons();
-
-    // Balance toggle functionality
-    document.addEventListener('DOMContentLoaded', function() {
-      const toggleButton = document.getElementById('toggleBalance');
-      const eyeIcon = document.getElementById('eyeIcon');
-      const eyeIconOn = document.getElementById('eyeIconOn');
-      const balanceAmount = document.getElementById('balanceAmount');
-      const balanceHidden = document.getElementById('balanceHidden');
-
-      let isVisible = true;
-
-      toggleButton.addEventListener('click', function() {
-        if (isVisible) {
-          // Hide balance
-          balanceAmount.classList.add('hidden');
-          balanceHidden.classList.remove('hidden');
-          eyeIcon.classList.add('hidden');
-          eyeIconOn.classList.remove('hidden');
-          isVisible = false;
-        } else {
-          // Show balance
-          balanceAmount.classList.remove('hidden');
-          balanceHidden.classList.add('hidden');
-          eyeIconOn.classList.add('hidden');
-          eyeIcon.classList.remove('hidden');
-          isVisible = true;
-        }
-      });
-    });
-
     // Function untuk toggle notification panel
     function toggleNotificationPanel() {
       const panel = document.getElementById('notificationPanel');

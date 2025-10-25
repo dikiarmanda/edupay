@@ -12,11 +12,6 @@ class HomeController extends Controller
         return view('splash');
     }
 
-    public function semuaMenu()
-    {
-        return view('semua-menu');
-    }
-
     public function bantuan()
     {
         return view('bantuan');

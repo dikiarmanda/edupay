@@ -15,7 +15,11 @@ class DashboardController extends Controller
     {
         $user = (object) session('auth');
         $user->greeting = $this->greeting();
-
+        $menus = $this->getMenus();
+        // Batasi 7 menu pertama
+        $limitedMenus = $menus->take(7);
+        // Cek apakah ada lebih dari 7 menu
+        $hasMore = $menus->count() > 7;
         // Ambil 5 notifikasi terbaru
         $query = Notification::query();
 
@@ -36,7 +40,104 @@ class DashboardController extends Controller
         // Hitung jumlah notifikasi yang belum dibaca
         $unreadCount = $query->unread()->count();
 
-        return view('dashboard', compact('user', 'latestNotifications', 'unreadCount'));
+        try {
+            $saldo = MutationHistory::saldo($user->nisn, $user->merchant_kode);
+        } catch (\Throwable $th) {
+            $saldo = 0;
+        }
+        session()->put('auth.saldo', $saldo);
+
+        return view('dashboard', compact('user', 'latestNotifications', 'unreadCount', 'limitedMenus', 'hasMore'));
+    }
+
+    protected function getMenus()
+    {
+        $menus =
+            [
+                (object) [
+                    'label' => 'Tagihan',
+                    'icon' => 'credit-card',
+                    'color' => 'blue',
+                    'route' => 'tagihan.index',
+                ],
+                (object) [
+                    'label' => 'Isi Saldo',
+                    'icon' => 'wallet',
+                    'color' => 'green',
+                    'route' => 'topup.index',
+                ],
+                (object) [
+                    'label' => 'Donasi',
+                    'icon' => 'heart',
+                    'color' => 'red',
+                    'route' => null,
+                ],
+                (object) [
+                    'label' => 'Kantin',
+                    'icon' => 'utensils',
+                    'color' => 'orange',
+                    'route' => null,
+                ],
+                (object) [
+                    'label' => 'Antar Jemput',
+                    'icon' => 'bus',
+                    'color' => 'purple',
+                    'route' => null,
+                ],
+                (object) [
+                    'label' => 'Pengumuman',
+                    'icon' => 'megaphone',
+                    'color' => 'teal',
+                    'route' => 'pengumuman.index',
+                ],
+                (object) [
+                    'label' => 'Berita',
+                    'icon' => 'newspaper',
+                    'color' => 'blue',
+                    'route' => null,
+                ],
+                (object) [
+                    'label' => 'Absensi',
+                    'icon' => 'user-check',
+                    'color' => 'indigo',
+                    'route' => null,
+                ],
+                (object) [
+                    'label' => 'Jadwal Sekolah',
+                    'icon' => 'calendar',
+                    'color' => 'violet',
+                    'route' => null,
+                ],
+                (object) [
+                    'label' => 'Kegiatan di Rumah',
+                    'icon' => 'clipboard-check',
+                    'color' => 'yellow',
+                    'route' => null,
+                ],
+                (object) [
+                    'label' => 'Al-Quran',
+                    'icon' => 'book-open',
+                    'color' => 'emerald',
+                    'route' => 'alquran.index',
+                ],
+                (object) [
+                    'label' => 'Jadwal Sholat',
+                    'icon' => 'calendar-clock',
+                    'color' => 'amber',
+                    'route' => 'jadwal-sholat.index',
+                ],
+            ];
+
+        $menusWithRoute = collect($menus)->filter(fn($m) => !empty($m->route))->values();
+
+        return $menusWithRoute;
+    }
+
+
+    public function semuaMenu()
+    {
+        $menus = $this->getMenus();
+        return view('semua-menu', compact('menus'));
     }
 
     /**
