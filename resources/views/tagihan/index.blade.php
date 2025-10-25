@@ -279,8 +279,39 @@
                   </table>
                 </div>
 
+                <!-- Input PIN -->
+                <div class="mb-6">
+                  <label for="pin" class="mb-2 block text-sm font-medium text-gray-700">
+                    Masukkan PIN (6 digit)
+                  </label>
+                  <div class="flex justify-center space-x-2">
+                    <input type="password" id="pin1" maxlength="1"
+                      class="h-12 w-12 rounded-lg border-2 border-gray-300 text-center text-lg font-bold transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-200"
+                      onkeyup="moveToNext(this, 'pin2')" onkeydown="handleBackspace(this, 'pin1')">
+                    <input type="password" id="pin2" maxlength="1"
+                      class="h-12 w-12 rounded-lg border-2 border-gray-300 text-center text-lg font-bold transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-200"
+                      onkeyup="moveToNext(this, 'pin3')" onkeydown="handleBackspace(this, 'pin1')">
+                    <input type="password" id="pin3" maxlength="1"
+                      class="h-12 w-12 rounded-lg border-2 border-gray-300 text-center text-lg font-bold transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-200"
+                      onkeyup="moveToNext(this, 'pin4')" onkeydown="handleBackspace(this, 'pin2')">
+                    <input type="password" id="pin4" maxlength="1"
+                      class="h-12 w-12 rounded-lg border-2 border-gray-300 text-center text-lg font-bold transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-200"
+                      onkeyup="moveToNext(this, 'pin5')" onkeydown="handleBackspace(this, 'pin3')">
+                    <input type="password" id="pin5" maxlength="1"
+                      class="h-12 w-12 rounded-lg border-2 border-gray-300 text-center text-lg font-bold transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-200"
+                      onkeyup="moveToNext(this, 'pin6')" onkeydown="handleBackspace(this, 'pin4')">
+                    <input type="password" id="pin6" maxlength="1"
+                      class="h-12 w-12 rounded-lg border-2 border-gray-300 text-center text-lg font-bold transition-colors focus:border-purple-500 focus:ring-2 focus:ring-purple-200"
+                      onkeyup="validatePin()" onkeydown="handleBackspace(this, 'pin5')">
+                  </div>
+                  <div id="pinError" class="mt-2 hidden text-sm text-red-600">
+                    PIN tidak valid. Silakan coba lagi.
+                  </div>
+                </div>
+
                 <!-- Hidden input untuk jumlah bayar -->
                 <input type="hidden" id="jumlahBayar" name="jumlah_bayar" value="">
+                <input type="hidden" id="pinValue" name="pin" value="">
               </form>
             </div>
           </div>
@@ -580,6 +611,10 @@
       // Set hidden input untuk jumlah bayar
       document.getElementById('jumlahBayar').value = totalBayar;
 
+      // Clear PIN inputs dan disable submit button
+      clearPinInputs();
+      document.querySelector('button[onclick="submitPayment()"]').disabled = true;
+
       // Tampilkan modal dengan transisi
       const modal = document.getElementById('paymentModal');
       const modalContent = document.getElementById('modalContent');
@@ -590,6 +625,8 @@
       setTimeout(() => {
         modalContent.classList.remove('scale-95', 'opacity-0');
         modalContent.classList.add('scale-100', 'opacity-100');
+        // Focus ke PIN input pertama
+        document.getElementById('pin1').focus();
       }, 10);
     }
 
@@ -607,12 +644,71 @@
         modal.classList.add('hidden');
         currentTagihanId = null;
         currentTagihan = 0;
+        // Clear PIN inputs
+        clearPinInputs();
       }, 300);
+    }
+
+    // PIN handling functions
+    function moveToNext(currentInput, nextInputId) {
+      if (currentInput.value.length === 1) {
+        const nextInput = document.getElementById(nextInputId);
+        if (nextInput) {
+          nextInput.focus();
+        }
+      }
+    }
+
+    function handleBackspace(currentInput, prevInputId) {
+      if (currentInput.value === '' && event.key === 'Backspace') {
+        const prevInput = document.getElementById(prevInputId);
+        if (prevInput) {
+          prevInput.focus();
+        }
+      }
+    }
+
+    function validatePin() {
+      const pin1 = document.getElementById('pin1').value;
+      const pin2 = document.getElementById('pin2').value;
+      const pin3 = document.getElementById('pin3').value;
+      const pin4 = document.getElementById('pin4').value;
+      const pin5 = document.getElementById('pin5').value;
+      const pin6 = document.getElementById('pin6').value;
+
+      const pinValue = pin1 + pin2 + pin3 + pin4 + pin5 + pin6;
+
+      if (pinValue.length === 6) {
+        document.getElementById('pinValue').value = pinValue;
+        document.getElementById('pinError').classList.add('hidden');
+        // Enable submit button or auto-submit
+        document.querySelector('button[onclick="submitPayment()"]').disabled = false;
+      } else {
+        document.getElementById('pinError').classList.remove('hidden');
+        document.querySelector('button[onclick="submitPayment()"]').disabled = true;
+      }
+    }
+
+    function clearPinInputs() {
+      for (let i = 1; i <= 6; i++) {
+        document.getElementById(`pin${i}`).value = '';
+      }
+      document.getElementById('pinValue').value = '';
+      document.getElementById('pinError').classList.add('hidden');
+      document.getElementById('pin1').focus();
     }
 
     function submitPayment() {
       const form = document.getElementById('paymentForm');
       const formData = new FormData(form);
+
+      // Validasi PIN
+      const pinValue = document.getElementById('pinValue').value;
+      if (!pinValue || pinValue.length !== 6) {
+        document.getElementById('pinError').classList.remove('hidden');
+        showToast('PIN harus 6 digit', 'error');
+        return;
+      }
 
       if (!form.checkValidity()) {
         form.reportValidity();
@@ -645,6 +741,10 @@
             closePaymentModal();
             location.reload();
           } else {
+            if (data.message === 'PIN tidak valid') {
+              document.getElementById('pinError').classList.remove('hidden');
+              clearPinInputs();
+            }
             showToast(data.message || 'Terjadi kesalahan', 'error');
           }
         })

@@ -72,7 +72,21 @@ class TagihanController extends Controller
             // Validasi pembayaran
             $request->validate([
                 'jumlah_bayar' => 'required|numeric|min:1|max:' . $tagihan->total,
+                'pin' => 'required|string|size:6',
             ]);
+
+            // Validasi PIN
+            $user = (object) session('auth');
+            $hashedPin = $user->pin ?? null;
+            $inputPin = $request->pin;
+
+            if (!$hashedPin || !password_verify($inputPin, $hashedPin)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'PIN tidak valid',
+                    'test' => $user
+                ], 401);
+            }
 
             $jumlahBayar = $request->jumlah_bayar;
             $bayarBaru = $tagihan->bayar + $jumlahBayar;
@@ -86,6 +100,7 @@ class TagihanController extends Controller
 
             // Tambahkan transaksi ke mutation_history
             $tagihan->mutationHistory()->create([
+                'code_callback' => $tagihan->id,
                 'nisn' => $tagihan->nisn,
                 'customer_name' => $tagihan->nama,
                 'information' => $tagihan->tagihan,
@@ -99,7 +114,7 @@ class TagihanController extends Controller
             $tagihan->notifications()->create([
                 'merchant_kode' => $tagihan->merchant_kode ?? 'EDUPAY',
                 'judul' => 'Pembayaran Tagihan Berhasil',
-                'pesan' => "Pembayaran tagihan {$tagihan->jenis} sebesar Rp " . number_format($jumlahBayar, 0, ',', '.') . " berhasil diproses.",
+                'pesan' => "Pembayaran tagihan {$tagihan->tagihan} sebesar Rp " . number_format($jumlahBayar, 0, ',', '.') . " berhasil diproses.",
                 'tipe' => 'success',
                 'is_read' => false,
             ]);

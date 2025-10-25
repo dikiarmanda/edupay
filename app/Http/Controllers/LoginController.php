@@ -65,20 +65,8 @@ class LoginController extends Controller
             ];
         }
 
-        // Ambil data mutation_history berdasarkan NISN dan merchant_kode
-        $mutationHistory = [];
-        if ($siswa->merchant_kode) {
-            $mutationHistory = MutationHistory::byNisnAndMerchant($user->nisn_siswa, $siswa->merchant_kode)
-                ->orderBy('date_trx', 'desc')
-                ->get();
-        } else {
-            // Data contoh untuk testing jika tidak ada merchant_kode
-            $mutationHistory = [];
-        }
         try {
-            $saldo = $mutationHistory->reduce(function ($carry, $item) {
-                return $carry + ($item->debet ? -$item->debet : $item->kredit);
-            }, 0);
+            $saldo = MutationHistory::saldo($user->nisn_siswa, $siswa->merchant_kode);
         } catch (\Throwable $th) {
             $saldo = 0;
         }
@@ -94,6 +82,7 @@ class LoginController extends Controller
             'avatarUrl' => $user->avatarUrl,
             'kelas' => $siswa->kelas,
             'saldo' => $saldo,
+            'pin' => $user->pin,
         ]);
     }
 

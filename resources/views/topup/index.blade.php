@@ -73,7 +73,7 @@
               <div class="flex items-center justify-between">
                 <div class="flex-1">
                   <h3 class="font-medium text-gray-900">{{ $transaction->product }}</h3>
-                  <p class="text-sm text-gray-500">{{ $transaction->created_at->format('d M Y H:i') }}</p>
+                  <p class="text-sm text-gray-500">{{ $transaction->created_at->translatedFormat('d M Y H:i') }}</p>
                   <div class="mt-1 flex items-center space-x-2">
                     @if ($transaction->status === 'success')
                       <i data-lucide="check-circle" class="h-4 w-4 text-green-500"></i>

@@ -41,7 +41,7 @@ class TopupController extends Controller
     public function createInvoice(Request $request)
     {
         $request->validate([
-            'amount' => 'required|numeric|min:1000|max:100000000', // Min 10k, Max 10jt
+            'amount' => 'required|numeric|min:1000|max:100000000', // Min 1k, Max 10jt
         ]);
 
         try {

@@ -7,9 +7,7 @@
       <div class="mx-auto max-w-md px-4 py-4">
         <div class="flex items-center space-x-3">
           <button onclick="history.back()" class="flex-shrink-0">
-            <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
+            <i data-lucide="chevron-left" class="h-6 w-6 text-gray-600"></i>
           </button>
           <h1 class="text-lg font-semibold text-gray-900">Struk Pembayaran</h1>
         </div>
@@ -102,9 +100,8 @@
       <div class="no-print mt-6 space-y-3">
         <a href="{{ route('tagihan.download-pdf', $tagihan->id) }}"
           class="block w-full rounded-lg bg-purple-600 px-4 py-3 text-center font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
-          Cetak Struk (PDF)
+          <i data-lucide="download" class="inline h-6 w-6 text-white mr-1"></i>Unduh Bukti Pembayaran
         </a>
-
       </div>
     </div>
   </div>

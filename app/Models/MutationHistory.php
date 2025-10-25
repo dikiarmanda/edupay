@@ -15,7 +15,7 @@ class MutationHistory extends Model
      * @var string
      */
     protected $table = 'mutation_history';
-
+    public $timestamps = false;
     /**
      * The attributes that are mass assignable.
      *
@@ -41,8 +41,6 @@ class MutationHistory extends Model
         'date_trx' => 'datetime',
         'debet' => 'decimal:0',
         'kredit' => 'decimal:0',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /**
@@ -99,5 +97,16 @@ class MutationHistory extends Model
     public function scopeDebit($query)
     {
         return $query->where('debet', '>', 0);
+    }
+
+    /**
+     * Scope untuk saldo
+     */
+    public function scopeSaldo($query, $nisn, $merchantName)
+    {
+        return $query->where('nisn', $nisn)
+            ->where('merchant_name', $merchantName)
+            ->selectRaw('SUM(kredit - debet) as saldo')
+            ->value('saldo') ?? 0;
     }
 }
