@@ -9,6 +9,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecurityController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PengumumanController;
+use App\Http\Controllers\JadwalSholatController;
 
 Route::get('/', [HomeController::class, 'splash'])->name('splash');
 
@@ -68,10 +70,27 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{notification}', [NotificationController::class, 'destroy'])->name('notifikasi.destroy');
     });
 
+    // Pengumuman Routes
+    Route::group(['prefix' => 'pengumuman'], function () {
+        Route::get('/', [PengumumanController::class, 'index'])->name('pengumuman.index');
+        Route::get('/{pengumuman}', [PengumumanController::class, 'show'])->name('pengumuman.show');
+    });
+
+    // Jadwal Sholat Routes
+    Route::group(['prefix' => 'jadwal-sholat'], function () {
+        Route::get('/', [JadwalSholatController::class, 'index'])->name('jadwal-sholat.index');
+    });
+
     // API Routes untuk notifikasi
     Route::group(['prefix' => 'api/notifikasi'], function () {
         Route::get('/latest', [NotificationController::class, 'getLatest'])->name('api.notifikasi.latest');
         Route::get('/unread-count', [NotificationController::class, 'getUnreadCount'])->name('api.notifikasi.unread-count');
+    });
+
+    // API Routes untuk jadwal sholat
+    Route::group(['prefix' => 'api/jadwal-sholat'], function () {
+        Route::get('/', [JadwalSholatController::class, 'getJadwalSholat'])->name('api.jadwal-sholat.get');
+        Route::get('/cities', [JadwalSholatController::class, 'getCities'])->name('api.jadwal-sholat.cities');
     });
 
 });
