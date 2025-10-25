@@ -20,7 +20,7 @@
 
   <!-- All Menu Grid -->
   <div class="px-4 py-6">
-    <div class="grid grid-cols-3 gap-4 mb-15">
+    <div class="mb-15 grid grid-cols-3 gap-4">
       <!-- Row 1 -->
       <!-- Tagihan -->
       <a href="{{ route('tagihan.index') }}" class="flex flex-col items-center space-y-1">
@@ -64,12 +64,12 @@
       </div>
 
       <!-- Pengumuman -->
-      <div class="flex flex-col items-center space-y-1">
+      <a href="{{ route('pengumuman.index') }}" class="flex flex-col items-center space-y-1">
         <div class="flex h-28 w-28 items-center justify-center rounded-xl bg-teal-100">
           <i data-lucide="megaphone" class="h-14 w-14 text-teal-600"></i>
         </div>
         <span class="text-center text-xs font-medium text-gray-700">Pengumuman</span>
-      </div>
+      </a>
 
       <!-- Berita -->
       <div class="flex flex-col items-center space-y-1">
@@ -113,12 +113,12 @@
       </div>
 
       <!-- Jadwal Sholat -->
-      <div class="flex flex-col items-center space-y-1">
+      <a href="{{ route('jadwal-sholat.index') }}" class="flex flex-col items-center space-y-1">
         <div class="flex h-28 w-28 items-center justify-center rounded-xl bg-amber-100">
           <i data-lucide="calendar-clock" class="h-14 w-14 text-amber-600"></i>
         </div>
         <span class="text-center text-xs font-medium text-gray-700">Jadwal Sholat</span>
-      </div>
+      </a>
     </div>
   </div>
 

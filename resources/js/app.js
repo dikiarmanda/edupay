@@ -17,10 +17,25 @@ import "select2/dist/css/select2.min.css";
 // Import custom Select2 styles
 import "../css/select2-custom.css";
 
-import { createIcons, icons } from "lucide";
-
+import * as lucide from "lucide";
+window.lucide = lucide;
 document.addEventListener("DOMContentLoaded", () => {
-    createIcons({ icons });
+    lucide.createIcons({ icons: lucide.icons });
+
+    const toggleButton = document.getElementById("toggleBalance");
+    const eyeIcon = document.getElementById("eyeIcon");
+    const eyeIconOn = document.getElementById("eyeIconOn");
+    const balanceAmount = document.getElementById("balanceAmount");
+    const balanceHidden = document.getElementById("balanceHidden");
+
+    if (toggleButton) {
+        toggleButton.addEventListener("click", function () {
+            balanceAmount.classList.toggle("hidden");
+            balanceHidden.classList.toggle("hidden");
+            eyeIcon.classList.toggle("hidden");
+            eyeIconOn.classList.toggle("hidden");
+        });
+    }
 });
 
 // Make flatpickr available globally
