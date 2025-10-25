@@ -1,16 +1,17 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TagihanController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\TopupController;
+use App\Http\Controllers\AlQuranController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TagihanController;
 use App\Http\Controllers\SecurityController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\JadwalSholatController;
+use App\Http\Controllers\NotificationController;
 
 Route::get('/', [HomeController::class, 'splash'])->name('splash');
 
@@ -26,7 +27,7 @@ Route::post('/verify-pin', [SecurityController::class, 'verifyPin'])->name('secu
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/semua-menu', [HomeController::class, 'semuaMenu'])->name('semua-menu');
+    Route::get('/semua-menu', [DashboardController::class, 'semuaMenu'])->name('semua-menu');
     Route::get('/mutasi', [DashboardController::class, 'mutasi'])->name('mutasi');
     Route::get('/tentang', [DashboardController::class, 'tentang'])->name('tentang');
     Route::get('/bantuan', [HomeController::class, 'bantuan'])->name('bantuan');
@@ -81,6 +82,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [JadwalSholatController::class, 'index'])->name('jadwal-sholat.index');
     });
 
+    // Al-Quran Routes
+    Route::group(['prefix' => 'alquran'], function () {
+        Route::get('/', [AlQuranController::class, 'index'])->name('alquran.index');
+        Route::get('/show', [AlQuranController::class, 'show'])->name('alquran.show');
+    });
+
     // API Routes untuk notifikasi
     Route::group(['prefix' => 'api/notifikasi'], function () {
         Route::get('/latest', [NotificationController::class, 'getLatest'])->name('api.notifikasi.latest');
@@ -91,6 +98,13 @@ Route::middleware(['auth'])->group(function () {
     Route::group(['prefix' => 'api/jadwal-sholat'], function () {
         Route::get('/', [JadwalSholatController::class, 'getJadwalSholat'])->name('api.jadwal-sholat.get');
         Route::get('/cities', [JadwalSholatController::class, 'getCities'])->name('api.jadwal-sholat.cities');
+    });
+
+    // API Routes untuk Al-Quran
+    Route::group(['prefix' => 'api/alquran'], function () {
+        Route::get('/surat', [AlQuranController::class, 'getSurat'])->name('api.alquran.surat');
+        Route::get('/surat-detail', [AlQuranController::class, 'getSuratDetail'])->name('api.alquran.surat-detail');
+        Route::get('/ayat', [AlQuranController::class, 'getAyat'])->name('api.alquran.ayat');
     });
 
 });
