@@ -111,7 +111,7 @@ class PaymentApiService
     /**
      * Mengecek status invoice
      */
-    public function checkInvoiceStatus($trxId)
+    public function checkInvoiceStatus($gateway_reference)
     {
         if (!$this->token && !$this->authenticate()) {
             throw new Exception('Failed to authenticate with payment API');
@@ -121,7 +121,7 @@ class PaymentApiService
             $response = Http::withoutVerifying()->withHeaders([
                 'Authorization' => 'Bearer ' . $this->token,
                 'Accept' => 'application/json',
-            ])->get($this->baseUrl . '/invoice/status/' . $trxId);
+            ])->get($this->baseUrl . '/invoice/data?id=' . $gateway_reference);
             Log::info('Response Cek Invoice Status : ' . $response);
             if ($response->successful()) {
                 return $response->json();

@@ -49,9 +49,9 @@ class LoginController extends Controller
 
         // Redirect berdasarkan status PIN
         if ($user->pin) {
-            return redirect()->intended('/dashboard');
+            return redirect()->to('/dashboard');
         } else {
-            return redirect()->intended('/create-pin');
+            return redirect()->to('/create-pin');
         }
     }
 

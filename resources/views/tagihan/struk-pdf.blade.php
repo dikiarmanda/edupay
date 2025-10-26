@@ -44,7 +44,7 @@
     }
 
     .max-w-md {
-      max-width: 28rem;
+      max-width: 50%;
     }
 
     .rounded-3xl {

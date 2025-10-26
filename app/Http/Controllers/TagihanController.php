@@ -89,11 +89,10 @@ class TagihanController extends Controller
             }
 
             $jumlahBayar = $request->jumlah_bayar;
-            $bayarBaru = $tagihan->bayar + $jumlahBayar;
 
             // Update status pembayaran
             $tagihan->update([
-                'bayar' => $bayarBaru,
+                'bayar' => $jumlahBayar,
                 'status_pembayaran' => '1',
                 'tgl_bayar' => now(),
             ]);

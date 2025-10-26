@@ -65,8 +65,79 @@
         </button>
       </div>
 
+      <!-- Filter Toggle Button -->
+      <div id="filter-toggle" class="mb-3" style="display: none;">
+        <div class="flex items-center justify-between">
+          <button onclick="toggleFilter()"
+            class="flex items-center space-x-2 rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z">
+              </path>
+            </svg>
+            <span id="filter-toggle-text">Tampilkan Filter</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Section -->
+      <div id="filter-section" class="mb-6" style="display: none;">
+        <div class="rounded-lg bg-white p-4 shadow-sm">
+          <form id="filterForm" method="POST" class="space-y-4">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div>
+                <label for="tanggal_awal" class="mb-2 block text-sm font-medium text-gray-700">Tanggal Mulai</label>
+                <input type="text" id="tanggal_awal" name="tanggal_awal" value="{{ request('tanggal_awal') }}"
+                  placeholder="Pilih tanggal mulai"
+                  class="w-full cursor-pointer rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                  readonly>
+              </div>
+              <div>
+                <label for="tanggal_akhir" class="mb-2 block text-sm font-medium text-gray-700">Tanggal Akhir</label>
+                <input type="text" id="tanggal_akhir" name="tanggal_akhir" value="{{ request('tanggal_akhir') }}"
+                  placeholder="Pilih tanggal akhir"
+                  class="w-full cursor-pointer rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                  readonly>
+              </div>
+              <div class="flex items-end space-x-2">
+                <button type="submit" id="filterSubmitBtn"
+                  class="w-full rounded-lg bg-purple-600 px-4 py-2 font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                  <span id="filterSubmitText">Filter</span>
+                  <i data-lucide="search" class="ml-2 inline h-4 w-4"></i>
+                </button>
+              </div>
+              <div class="col-span-3">
+                <button type="button" onclick="resetFilter()"
+                  class="w-full rounded-lg bg-gray-100 px-4 py-2 font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                  Reset
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
       <!-- Riwayat Tab Content -->
-      <div id="content-riwayat" class="space-y-4" style="display: none;">
+      <div id="content-riwayat" class="mb-18 space-y-4" style="display: none;">
+        @if (request('tanggal_awal') || request('tanggal_akhir'))
+          <div class="rounded-lg bg-blue-50 p-3">
+            <div class="flex items-center">
+              <svg class="mr-2 h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <p class="text-sm text-blue-800">
+                Menampilkan {{ $transactions->count() }} riwayat transaksi
+                @if (request('tanggal_awal') && request('tanggal_akhir'))
+                  dari
+                  {{ \Carbon\Carbon::parse(request('tanggal_awal'))->translatedFormat('d M Y') }} sampai
+                  {{ \Carbon\Carbon::parse(request('tanggal_akhir'))->translatedFormat('d M Y') }}
+                @endif
+              </p>
+            </div>
+          </div>
+        @endif
+
         @if ($transactions && $transactions->count() > 0)
           @foreach ($transactions as $transaction)
             <div class="rounded-lg bg-white p-4 shadow-sm">
@@ -130,6 +201,8 @@
     function switchTab(tabName) {
       const contentElements = document.querySelectorAll('#content-topup, #content-riwayat');
       const tabButtons = document.querySelectorAll('#tab-topup, #tab-riwayat');
+      const filterToggle = document.getElementById('filter-toggle');
+      const filterSection = document.getElementById('filter-section');
 
       contentElements.forEach(element => element.style.display = 'none');
       tabButtons.forEach(button => {
@@ -145,16 +218,45 @@
         contentElements[0].style.display = 'block';
         tabButtons[0].className = 'flex-1 rounded-lg bg-purple-100 px-4 py-2 text-center font-medium text-purple-700';
         tabButtons[0].classList.add('rounded-r-none');
+        filterToggle.style.display = 'none';
+        filterSection.style.display = 'none';
       } else if (tabName === 'riwayat') {
         contentElements[1].style.display = 'block';
         tabButtons[1].className = 'flex-1 rounded-lg bg-purple-100 px-4 py-2 text-center font-medium text-purple-700';
         tabButtons[1].classList.add('rounded-l-none');
+        filterToggle.style.display = 'block';
       }
     }
 
     // Initialize with riwayat tab active
     document.addEventListener('DOMContentLoaded', function() {
-      switchTab('topup');
+      // Check if we have filter parameters in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const hasFilter = urlParams.has('tanggal_awal') || urlParams.has('tanggal_akhir');
+
+      // If coming from filtered view, show riwayat tab
+      if (hasFilter) {
+        switchTab('riwayat');
+        // Show filter section if filter is active
+        const filterSection = document.getElementById('filter-section');
+        const filterToggle = document.getElementById('filter-toggle');
+        const filterToggleText = document.getElementById('filter-toggle-text');
+
+        if (filterSection) {
+          filterSection.style.display = 'block';
+          filterToggleText.textContent = 'Sembunyikan Filter';
+        }
+
+        // Initialize Flatpickr when filter is shown
+        setTimeout(() => {
+          if (typeof window.initializeFlatpickr === 'function') {
+            window.initializeFlatpickr();
+          }
+        }, 100);
+      } else {
+        switchTab('topup');
+      }
+
       document.getElementById('navDashboard').classList.add('active');
     });
 
@@ -243,14 +345,15 @@
             showToast('Invoice berhasil dibuat! Silakan lakukan pembayaran.', 'success');
 
             // Redirect to payment URL if available
-            if (data.data.paymentUrl) {
-              window.location.href = data.data.paymentUrl;
+            if (data.data.payment_url) {
+              console.log('redirect...');
+              window.location.href = data.data.payment_url;
             }
 
             // Refresh the page to show updated history
             setTimeout(() => {
               location.reload();
-            }, 2000);
+            }, 10000);
           } else {
             showToast(data.message || 'Gagal membuat invoice', 'error');
           }
@@ -264,6 +367,40 @@
           button.textContent = originalText;
           button.disabled = false;
         });
+    }
+
+    function toggleFilter() {
+      const filterSection = document.getElementById('filter-section');
+      const filterToggleText = document.getElementById('filter-toggle-text');
+
+      if (filterSection.style.display === 'none' || filterSection.style.display === '') {
+        filterSection.style.display = 'block';
+        filterToggleText.textContent = 'Sembunyikan Filter';
+
+        // Initialize Flatpickr when filter is shown
+        setTimeout(() => {
+          if (typeof window.initializeFlatpickr === 'function') {
+            window.initializeFlatpickr();
+          }
+        }, 100);
+      } else {
+        filterSection.style.display = 'none';
+        filterToggleText.textContent = 'Tampilkan Filter';
+      }
+    }
+
+    function resetFilter() {
+      // Reset date values
+      const today = new Date();
+      const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+      document.getElementById('tanggal_awal').value =
+        `${firstDayOfMonth.getFullYear()}-${String(firstDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(firstDayOfMonth.getDate()).padStart(2, '0')}`;
+      document.getElementById('tanggal_akhir').value =
+        `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+      // Submit form
+      document.getElementById('filterForm').submit();
     }
 
     function showTransactionDetail(trxId) {

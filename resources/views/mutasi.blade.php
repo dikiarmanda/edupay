@@ -94,9 +94,6 @@
   @push('scripts')
     <script>
       document.addEventListener('DOMContentLoaded', function() {
-        // Initialize Lucide icons
-        lucide.createIcons();
-
         // Initialize Flatpickr menggunakan fungsi yang sudah di-import
         if (typeof window.initializeFlatpickr === 'function') {
           window.initializeFlatpickr();

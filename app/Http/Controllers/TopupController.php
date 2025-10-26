@@ -23,14 +23,25 @@ class TopupController extends Controller
     /**
      * Menampilkan halaman top-up
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = (object) session('auth');
 
-        // Ambil riwayat transaksi untuk tab riwayat
-        $transactions = TransactionHistory::where('merchant_kode', $user->merchant_kode)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        // Ambil riwayat transaksi untuk tab riwayat dengan filter
+        $transactionsQuery = TransactionHistory::where('merchant_kode', $user->merchant_kode)
+            ->orderBy('created_at', 'desc');
+
+        // Filter berdasarkan tanggal awal jika ada
+        if ($request->filled('tanggal_awal')) {
+            $transactionsQuery->whereDate('created_at', '>=', $request->tanggal_awal);
+        }
+
+        // Filter berdasarkan tanggal akhir jika ada
+        if ($request->filled('tanggal_akhir')) {
+            $transactionsQuery->whereDate('created_at', '<=', $request->tanggal_akhir);
+        }
+
+        $transactions = $transactionsQuery->get();
 
         return view('topup.index', compact('transactions'));
     }
@@ -68,7 +79,7 @@ class TopupController extends Controller
             // Panggil API untuk membuat invoice
             $invoiceResponse = $this->paymentApiService->createInvoice($invoiceData);
 
-            // Simpan ke database sebagai pending
+            // Simpan ke TransactionHistory sebagai pending
             $transaction = TransactionHistory::create([
                 'trx_id' => $trxId,
                 'nisn_siswa' => $user->nisn ?? null,
@@ -84,7 +95,7 @@ class TopupController extends Controller
                 'gateway_reference' => $invoiceResponse['data']['reference'] ?? null,
                 'expired_at' => isset($invoiceResponse['data']['expires_at']) ?
                     Carbon::parse($invoiceResponse['data']['expires_at']) :
-                    now()->addHours(24)
+                    now()->addHours(2)
             ]);
 
             return response()->json([
@@ -93,9 +104,11 @@ class TopupController extends Controller
                 'data' => [
                     'trx_id' => $trxId,
                     'amount' => $amount,
-                    'payment_url' => $invoiceResponse['payment_url'] ?? null,
-                    'expires_at' => $invoiceResponse['expires_at'] ?? null,
-                    'transaction_id' => $transaction->id
+                    'payment_url' => str_replace('\\', '', $invoiceResponse['data']['paymentUrl']) ?? null,
+                    'expires_at' => isset($invoiceResponse['data']['expires_at']) ?
+                        Carbon::parse($invoiceResponse['data']['expires_at']) :
+                        now()->addHours(2),
+                    'transaction_id' => $transaction->id,
                 ]
             ]);
 
@@ -123,9 +136,7 @@ class TopupController extends Controller
             $user = (object) session('auth');
 
             // Cek dari database dulu
-            $transaction = TransactionHistory::where('trx_id', $trxId)
-                ->where('merchant_kode', $user->merchant_kode)
-                ->first();
+            $transaction = TransactionHistory::where('trx_id', $trxId)->first();
 
             if (!$transaction) {
                 return response()->json([
@@ -135,21 +146,25 @@ class TopupController extends Controller
             }
 
             // Jika masih pending, cek ke API
-            if ($transaction->status === 'pending') {
-                $apiStatus = $this->paymentApiService->checkInvoiceStatus($trxId);
+            if ($transaction->status === 'pending' && $transaction->expired_at < now()) {
+                $apiStatus = $this->paymentApiService->checkInvoiceStatus($transaction->gateway_reference);
 
                 // Update status berdasarkan response API
                 if (isset($apiStatus['status'])) {
+                    $status = $apiStatus['status'] == '1' ? 'success' : 'failed';
+                    $statusMessage = match ($status) {
+                        'success' => 'Pembayaran berhasil',
+                        'failed' => 'Pembayaran gagal',
+                    };
                     $transaction->updateStatus(
-                        $apiStatus['status'],
-                        $apiStatus['message'] ?? null,
+                        $status,
+                        $statusMessage ?? null,
                         $apiStatus
                     );
 
-                    // Jika berhasil, update saldo user (jika ada field saldo)
+                    // Jika berhasil, update mutation history
                     if ($apiStatus['status'] === 'success' && isset($user->saldo)) {
-                        $user->saldo += $transaction->amount;
-                        // Simpan kembali ke session atau database sesuai kebutuhan
+
                     }
                 }
             }

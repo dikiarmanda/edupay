@@ -60,14 +60,13 @@
   <div class="mb-6 px-4">
     <h3 class="mb-4 text-lg font-bold text-gray-900">Menu Utama</h3>
     <div class="grid grid-cols-4 gap-4">
-
-      @foreach ($limitedMenus  as $menu)
-          <a href="{{ route($menu->route) }}" class="flex flex-col items-center space-y-1">
-            <div class="bg-{{ $menu->color }}-100 flex h-20 w-20 items-center justify-center rounded-xl">
-              <i data-lucide="{{ $menu->icon }}" class="text-{{ $menu->color }}-600 h-10 w-10"></i>
-            </div>
-            <span class="text-xs font-medium text-gray-700">{{ $menu->label }}</span>
-          </a>
+      @foreach ($limitedMenus as $menu)
+        <a href="{{ route($menu->route) }}" class="flex flex-col items-center space-y-1">
+          <div class="bg-{{ $menu->color }}-100 flex h-20 w-20 items-center justify-center rounded-xl">
+            <i data-lucide="{{ $menu->icon }}" class="text-{{ $menu->color }}-600 h-10 w-10"></i>
+          </div>
+          <span class="text-xs font-medium text-gray-700">{{ $menu->label }}</span>
+        </a>
       @endforeach
 
       @if ($hasMore)

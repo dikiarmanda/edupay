@@ -89,22 +89,6 @@ class TransactionHistory extends Model
     }
 
     /**
-     * Accessor untuk format amount dengan pemisah ribuan
-     */
-    public function getFormattedAmountAttribute()
-    {
-        return 'Rp ' . number_format($this->amount, 0, ',', '.');
-    }
-
-    /**
-     * Accessor untuk format total amount dengan pemisah ribuan
-     */
-    public function getFormattedTotalAmountAttribute()
-    {
-        return 'Rp ' . number_format($this->total_amount, 0, ',', '.');
-    }
-
-    /**
      * Accessor untuk status dalam bahasa Indonesia
      */
     public function getStatusTextAttribute()
