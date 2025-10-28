@@ -12,6 +12,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\JadwalSholatController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\IzinSiswaController;
 
 Route::get('/', [HomeController::class, 'splash'])->name('splash');
 
@@ -86,6 +87,18 @@ Route::middleware(['auth'])->group(function () {
     Route::group(['prefix' => 'alquran'], function () {
         Route::get('/', [AlQuranController::class, 'index'])->name('alquran.index');
         Route::get('/show', [AlQuranController::class, 'show'])->name('alquran.show');
+    });
+
+    // Izin Siswa Routes
+    Route::group(['prefix' => 'izin-siswa'], function () {
+        Route::get('/', [IzinSiswaController::class, 'index'])->name('izin-siswa.index');
+        Route::get('/create', [IzinSiswaController::class, 'create'])->name('izin-siswa.create');
+        Route::post('/', [IzinSiswaController::class, 'store'])->name('izin-siswa.store');
+        Route::get('/{izin}', [IzinSiswaController::class, 'show'])->name('izin-siswa.show');
+        Route::get('/{izin}/edit', [IzinSiswaController::class, 'edit'])->name('izin-siswa.edit');
+        Route::put('/{izin}', [IzinSiswaController::class, 'update'])->name('izin-siswa.update');
+        Route::delete('/{izin}', [IzinSiswaController::class, 'destroy'])->name('izin-siswa.destroy');
+        Route::get('/{izin}/download-bukti', [IzinSiswaController::class, 'downloadBukti'])->name('izin-siswa.download-bukti');
     });
 
     // API Routes untuk notifikasi
