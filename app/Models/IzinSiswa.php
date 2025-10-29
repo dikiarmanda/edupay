@@ -16,6 +16,7 @@ class IzinSiswa extends Model
         'nama',
         'tanggal_izin',
         'jenis_izin',
+        'durasi',
         'alasan',
         'bukti_surat',
         'status',

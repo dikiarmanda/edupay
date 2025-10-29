@@ -11,17 +11,23 @@ class IzinSiswaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         // Ambil data user dari session
         $user = (object) session('auth');
         $nisn = $user->nisn_siswa ?? $user->nisn ?? null;
+        // Default bulan dan tahun jika tidak ada di request
+        $bulan = $request->filled('bulan') ? $request->bulan : date('m');
+        $tahun = $request->filled('tahun') ? $request->tahun : date('Y');
 
-        // Ambil data izin siswa berdasarkan NISN
-        $izinSiswa = IzinSiswa::where('nisn', $nisn)
+        // Query untuk izin siswa
+        $izinSiswaQuery = IzinSiswa::where('nisn', $nisn)
+            ->whereMonth('tanggal_izin', $bulan)
+            ->whereYear('tanggal_izin', $tahun)
             ->orderBy('tanggal_izin', 'desc')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->orderBy('created_at', 'desc');
+
+        $izinSiswa = $izinSiswaQuery->paginate(10);
 
         return view('izin-siswa.index', compact('izinSiswa'));
     }

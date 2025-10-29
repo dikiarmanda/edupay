@@ -19,29 +19,6 @@
     <!-- Main Content -->
     <div class="mx-auto max-w-md px-4 py-6">
       <div class="space-y-4">
-        <!-- Status Card -->
-        <div class="rounded-lg bg-white p-6 shadow-sm">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-600">Status</p>
-              <p
-                class="{{ $izin->status == '1' ? 'text-green-600' : ($izin->status == '0' ? 'text-red-600' : 'text-yellow-600') }} mt-1 text-lg font-semibold">
-                @if ($izin->status == '1')
-                  Disetujui
-                @elseif($izin->status == '0')
-                  Ditolak
-                @else
-                  Menunggu Persetujuan
-                @endif
-              </p>
-            </div>
-            <div class="text-right">
-              <span class="rounded-full bg-purple-100 px-3 py-1 text-sm font-medium text-purple-600">
-                {{ $izin->jenis_izin_text }}
-              </span>
-            </div>
-          </div>
-        </div>
 
         <!-- Data Card -->
         <div class="rounded-lg bg-white p-6 shadow-sm">
@@ -58,7 +35,7 @@
             <div class="flex justify-between border-b border-gray-100 pb-2">
               <span class="text-sm text-gray-600">Tanggal Izin</span>
               <span
-                class="font-medium text-gray-900">{{ \Carbon\Carbon::parse($izin->tanggal_izin)->format('d M Y') }}</span>
+                class="font-medium text-gray-900">{{ \Carbon\Carbon::parse($izin->tanggal_izin)->translatedFormat('d M Y') }}</span>
             </div>
             <div class="flex justify-between border-b border-gray-100 pb-2">
               <span class="text-sm text-gray-600">Jenis Izin</span>
@@ -70,12 +47,12 @@
             </div>
             <div class="flex justify-between border-b border-gray-100 pb-2">
               <span class="text-sm text-gray-600">Tanggal Diajukan</span>
-              <span class="font-medium text-gray-900">{{ $izin->created_at->format('d M Y H:i') }}</span>
+              <span class="font-medium text-gray-900">{{ $izin->created_at->translatedFormat('d M Y H:i') }}</span>
             </div>
             @if ($izin->updated_at != $izin->created_at)
               <div class="flex justify-between">
                 <span class="text-sm text-gray-600">Terakhir Diubah</span>
-                <span class="font-medium text-gray-900">{{ $izin->updated_at->format('d M Y H:i') }}</span>
+                <span class="font-medium text-gray-900">{{ $izin->updated_at->translatedFormat('d M Y H:i') }}</span>
               </div>
             @endif
           </div>
@@ -120,7 +97,9 @@
             class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-3 text-center font-medium text-gray-700 hover:bg-gray-50">
             Kembali
           </a>
-          @if (!$izin->status)
+          @if (
+              \Carbon\Carbon::parse($izin->tanggal_izin)->isSameDay(now()) ||
+                  \Carbon\Carbon::parse($izin->tanggal_izin)->isFuture())
             <a href="{{ route('izin-siswa.edit', $izin->id) }}"
               class="flex-1 rounded-lg border border-purple-300 bg-white px-4 py-3 text-center font-medium text-purple-700 hover:bg-purple-50">
               Edit
