@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MutationHistory;
 use App\Services\PaymentApiService;
 use App\Models\TransactionHistory;
 use Illuminate\Http\Request;
@@ -26,21 +27,40 @@ class TopupController extends Controller
     public function index(Request $request)
     {
         $user = (object) session('auth');
+        $tglAwal = $request->filled('tanggal_awal') ? $request->tanggal_awal : date('Y-m-01');
+        $tglAkhir = $request->filled('tanggal_akhir') ? $request->tanggal_akhir : date('Y-m-d');
 
         // Ambil riwayat transaksi untuk tab riwayat dengan filter
         $transactionsQuery = TransactionHistory::where('merchant_kode', $user->merchant_kode)
             ->orderBy('created_at', 'desc');
 
+
         // Filter berdasarkan tanggal awal jika ada
         if ($request->filled('tanggal_awal')) {
-            $transactionsQuery->whereDate('created_at', '>=', $request->tanggal_awal);
+            $transactionsQuery->whereDate('created_at', '>=', $tglAwal);
         }
 
         // Filter berdasarkan tanggal akhir jika ada
         if ($request->filled('tanggal_akhir')) {
-            $transactionsQuery->whereDate('created_at', '<=', $request->tanggal_akhir);
+            $transactionsQuery->whereDate('created_at', '<=', $tglAkhir);
         }
 
+        $transactions = $transactionsQuery->get();
+
+        // Cek status untuk transaksi pending
+        $pending = $transactions->where('status', 'pending');
+        foreach ($pending as $transaction) {
+            try {
+                $this->checkTransactionStatus($transaction);
+            } catch (Exception $e) {
+                Log::error('Error checking transaction status: ' . $e->getMessage(), [
+                    'trx_id' => $transaction->trx_id,
+                    'trace' => $e->getTrace()
+                ]);
+            }
+        }
+
+        // Refresh transactions setelah update status
         $transactions = $transactionsQuery->get();
 
         return view('topup.index', compact('transactions'));
@@ -123,6 +143,77 @@ class TopupController extends Controller
     }
 
     /**
+     * Mengecek status transaksi dari objek TransactionHistory
+     * Method private untuk digunakan internal
+     */
+    private function checkTransactionStatus($transaction)
+    {
+        try {
+            // Jika sudah tidak pending, tidak perlu dicek
+            if ($transaction->status !== 'pending') {
+                return;
+            }
+
+            // Jika belum ada gateway_reference, tidak bisa dicek ke API
+            if (!$transaction->gateway_reference) {
+                Log::warning('Transaction tidak memiliki gateway_reference', [
+                    'trx_id' => $transaction->trx_id
+                ]);
+                return;
+            }
+
+            // Cek status ke API
+            $apiStatus = $this->paymentApiService->checkInvoiceStatus($transaction->gateway_reference);
+
+            // Update status berdasarkan response API
+            if (isset($apiStatus['status'])) {
+                // Konversi status dari API (biasanya '1' untuk success, '0' atau lainnya untuk failed)
+                $status = ($apiStatus['status'] == '1' || $apiStatus['status'] === 'success') ? 'success' : 'failed';
+
+                $statusMessage = match ($status) {
+                    'success' => 'Pembayaran berhasil',
+                    'failed' => 'Pembayaran gagal',
+                    default => 'Status tidak diketahui'
+                };
+
+                $transaction->updateStatus(
+                    $status,
+                    $statusMessage,
+                    $apiStatus
+                );
+
+                // Jika berhasil, buat mutation history
+                if ($status === 'success') {
+                    $user = (object) session('auth');
+
+                    // Cek apakah mutation history sudah ada untuk transaksi ini
+                    $existingMutation = MutationHistory::where('code_callback', $transaction->trx_id)->first();
+
+                    if (!$existingMutation) {
+                        MutationHistory::create([
+                            'code_callback' => $transaction->trx_id,
+                            'nisn' => $user->nisn ?? $transaction->nisn_siswa,
+                            'customer_name' => $user->nama ?? $transaction->customer_name,
+                            'information' => 'Top Up Saldo',
+                            'debet' => 0,
+                            'kredit' => $transaction->amount,
+                            'date_trx' => now(),
+                            'merchant_name' => $user->merchant_kode ?? $transaction->merchant_kode,
+                        ]);
+                    }
+                }
+            }
+
+        } catch (Exception $e) {
+            Log::error('Error checking transaction status: ' . $e->getMessage(), [
+                'trx_id' => $transaction->trx_id ?? null,
+                'trace' => $e->getTrace()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
      * Mengecek status pembayaran
      */
     public function checkStatus(Request $request)
@@ -145,28 +236,11 @@ class TopupController extends Controller
                 ], 404);
             }
 
-            // Jika masih pending, cek ke API
-            if ($transaction->status === 'pending' && $transaction->expired_at < now()) {
-                $apiStatus = $this->paymentApiService->checkInvoiceStatus($transaction->gateway_reference);
-
-                // Update status berdasarkan response API
-                if (isset($apiStatus['status'])) {
-                    $status = $apiStatus['status'] == '1' ? 'success' : 'failed';
-                    $statusMessage = match ($status) {
-                        'success' => 'Pembayaran berhasil',
-                        'failed' => 'Pembayaran gagal',
-                    };
-                    $transaction->updateStatus(
-                        $status,
-                        $statusMessage ?? null,
-                        $apiStatus
-                    );
-
-                    // Jika berhasil, update mutation history
-                    if ($apiStatus['status'] === 'success' && isset($user->saldo)) {
-
-                    }
-                }
+            // Jika masih pending, cek ke API menggunakan method private
+            if ($transaction->status === 'pending') {
+                $this->checkTransactionStatus($transaction);
+                // Refresh transaction untuk mendapatkan data terbaru
+                $transaction->refresh();
             }
 
             return response()->json([
@@ -181,50 +255,6 @@ class TopupController extends Controller
                 'success' => false,
                 'message' => 'Gagal mengecek status: ' . $e->getMessage()
             ], 500);
-        }
-    }
-
-    /**
-     * Webhook untuk update status dari API eksternal
-     */
-    public function webhook(Request $request)
-    {
-        try {
-            $trxId = $request->input('trx_id');
-            $status = $request->input('status');
-
-            if (!$trxId || !$status) {
-                return response()->json(['error' => 'Missing required parameters'], 400);
-            }
-
-            $transaction = TransactionHistory::where('trx_id', $trxId)->first();
-
-            if (!$transaction) {
-                return response()->json(['error' => 'Transaction not found'], 404);
-            }
-
-            // Update status menggunakan method dari model
-            $transaction->updateStatus($status, $request->input('status_message'), $request->all());
-
-            // Jika berhasil, update saldo user (jika diperlukan)
-            if ($status === 'success') {
-                // Logika update saldo bisa ditambahkan di sini
-                Log::info('Transaction completed successfully', [
-                    'trx_id' => $trxId,
-                    'amount' => $transaction->amount
-                ]);
-            }
-
-            Log::info('Webhook processed successfully', [
-                'trx_id' => $trxId,
-                'status' => $status
-            ]);
-
-            return response()->json(['success' => true]);
-
-        } catch (Exception $e) {
-            Log::error('Webhook error: ' . $e->getMessage());
-            return response()->json(['error' => 'Internal server error'], 500);
         }
     }
 }

@@ -167,10 +167,10 @@
                       <span>Lihat Detail</span>
                     </button>
                   @elseif($transaction->status === 'pending')
-                    <div class="flex">
+                    <div class="flex space-x-1">
                       <button onclick="checkPaymentStatus('{{ $transaction->trx_id }}')"
                         class="mt-2 flex items-center space-x-1 rounded-lg bg-purple-50 px-3 py-1 text-sm text-purple-600 hover:bg-purple-100">
-                        <i data-lucide="clock" class="h-4 w-4"></i><span>Cek Status</span></button>
+                        Cek Status</button>
                       <a href="{{ $transaction->gateway_url }}" target="_blank"
                         class="mt-2 flex items-center space-x-1 rounded-lg bg-blue-50 px-3 py-1 text-sm text-blue-600 hover:bg-blue-100">
                         <i data-lucide="credit-card" class="h-4 w-4"></i>
@@ -409,6 +409,10 @@
     }
 
     function checkPaymentStatus(trxId) {
+      const button = event.target;
+      button.textContent = 'Proses Cek...';
+      button.disabled = true;
+
       fetch('/topup/check-status', {
           method: 'POST',
           headers: {
@@ -424,12 +428,12 @@
           if (data.success) {
             if (data.data.status === 'success') {
               showToast('Pembayaran berhasil! Saldo telah ditambahkan.', 'success');
-              location.reload();
             } else if (data.data.status === 'pending') {
               showToast('Pembayaran masih dalam proses...', 'info');
             } else {
               showToast('Pembayaran gagal atau dibatalkan', 'error');
             }
+            location.reload();
           } else {
             showToast(data.message || 'Gagal mengecek status pembayaran', 'error');
           }

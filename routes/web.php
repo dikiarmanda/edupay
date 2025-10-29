@@ -53,7 +53,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [TopupController::class, 'index'])->name('topup.index');
         Route::post('/create-invoice', [TopupController::class, 'createInvoice'])->name('topup.createInvoice');
         Route::post('/check-status', [TopupController::class, 'checkStatus'])->name('topup.checkStatus');
-        Route::post('/webhook', [TopupController::class, 'webhook'])->name('topup.webhook');
     });
 
     // Security Routes
