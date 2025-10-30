@@ -50,7 +50,7 @@
           <i id="eyeIconOn" data-lucide="eye" class="hidden h-4 w-4 text-white"></i>
         </button>
         <h2 id="balanceAmount" class="text-3xl font-bold">Rp ••••••••</h2>
-        <h2 id="balanceHidden" class="hidden text-3xl font-bold">Rp {{ number_format($user->saldo, 0, ',', '.') ?? 0 }}
+        <h2 id="balanceHidden" class="hidden text-3xl font-bold">Rp {{ number_format($saldo, 0, ',', '.') ?? 0 }}
         </h2>
       </div>
     </div>

@@ -161,11 +161,11 @@
                 <div class="text-right">
                   <p class="font-bold text-gray-900">{{ $transaction->formatted_amount }}</p>
                   @if ($transaction->status === 'success')
-                    <button onclick="showTransactionDetail('{{ $transaction->trx_id }}')"
+                    <a href="{{ route('topup.callback', ['trx_id' => $transaction->trx_id]) }}"
                       class="mt-2 flex items-center space-x-1 rounded-lg bg-purple-50 px-3 py-1 text-sm text-purple-600 hover:bg-purple-100">
                       <i data-lucide="file-text" class="h-4 w-4"></i>
                       <span>Lihat Detail</span>
-                    </button>
+                    </a>
                   @elseif($transaction->status === 'pending')
                     <div class="flex space-x-1">
                       <button onclick="checkPaymentStatus('{{ $transaction->trx_id }}')"

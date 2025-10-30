@@ -8,6 +8,7 @@ use App\Models\TransactionHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Exception;
@@ -87,6 +88,7 @@ class TopupController extends Controller
                 'trx_id' => $trxId,
                 'customer' => $user->nama,
                 'product' => 'Top Up Saldo',
+                'redirect' => route('topup.callback'),
                 'items' => json_encode([
                     [
                         'name' => 'Top Up Saldo',
@@ -115,7 +117,7 @@ class TopupController extends Controller
                 'gateway_reference' => $invoiceResponse['data']['reference'] ?? null,
                 'expired_at' => isset($invoiceResponse['data']['expires_at']) ?
                     Carbon::parse($invoiceResponse['data']['expires_at']) :
-                    now()->addHours(2)
+                    now()->addHours(1)
             ]);
 
             return response()->json([
@@ -127,7 +129,7 @@ class TopupController extends Controller
                     'payment_url' => str_replace('\\', '', $invoiceResponse['data']['paymentUrl']) ?? null,
                     'expires_at' => isset($invoiceResponse['data']['expires_at']) ?
                         Carbon::parse($invoiceResponse['data']['expires_at']) :
-                        now()->addHours(2),
+                        now()->addHours(1),
                     'transaction_id' => $transaction->id,
                 ]
             ]);
@@ -254,6 +256,190 @@ class TopupController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengecek status: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Callback sekaligus halaman detail topup.
+     * Menerima payload dari gateway pembayaran (POST JSON) atau menampilkan detail (GET).
+     */
+    public function callback(Request $request)
+    {
+        try {
+            $payload = $request->all();
+
+            // Ambil data invoice dari API berdasarkan parameter dari payload
+            $invoiceApiData = null;
+            $apiParams = [];
+
+            // Ambil parameter yang mungkin diperlukan untuk API (reference, orderid, dll)
+            if (isset($payload['invoice']['reference'])) {
+                $apiParams['id'] = $payload['invoice']['reference'];
+            } elseif (isset($payload['invoice']['orderid'])) {
+                $apiParams['orderid'] = $payload['invoice']['orderid'];
+            } elseif ($request->has('reference')) {
+                $apiParams['id'] = $request->input('reference');
+            } elseif ($request->has('orderid')) {
+                $apiParams['orderid'] = $request->input('orderid');
+            }
+
+            // Ambil data dari API jika ada parameter
+            if (!empty($apiParams)) {
+                try {
+                    $queryString = http_build_query($apiParams);
+                    $apiUrl = 'https://pay.amzhadigitalnusantara.co.id/invoice/data?' . $queryString;
+
+                    $response = Http::withoutVerifying()
+                        ->timeout(10)
+                        ->get($apiUrl);
+
+                    if ($response->successful()) {
+                        $invoiceApiData = $response->json();
+                        Log::info('Invoice data fetched from API', [
+                            'params' => $apiParams,
+                            'response' => $invoiceApiData
+                        ]);
+                    } else {
+                        Log::warning('Failed to fetch invoice data from API', [
+                            'params' => $apiParams,
+                            'status' => $response->status(),
+                            'response' => $response->body()
+                        ]);
+                    }
+                } catch (Exception $e) {
+                    Log::error('Error fetching invoice data from API: ' . $e->getMessage(), [
+                        'params' => $apiParams,
+                        'trace' => $e->getTrace()
+                    ]);
+                }
+            }
+
+            // Normalisasi struktur data
+            $invoice = $invoiceApiData['invoice'] ?? null;
+            $statusRaw = $invoiceApiData['status'] ?? ($invoice['status'] ?? null);
+
+            $trxId = $invoice['orderid'] ?? $request->query('trx_id');
+
+            $transaction = null;
+            if ($trxId) {
+                $transaction = TransactionHistory::where('trx_id', $trxId)->first();
+            }
+
+            // Jika ada payload dari gateway atau data dari API, proses update
+            if ($invoice && $trxId && $transaction) {
+                // Prioritaskan data dari API jika tersedia, jika tidak gunakan dari payload
+                $invoiceData = $invoiceApiData && isset($invoiceApiData['invoice']) ? $invoiceApiData['invoice'] : $invoice;
+
+                $gatewayReference = $invoiceData['reference'] ?? null;
+                $amount = isset($invoiceData['amount']) ? (int) $invoiceData['amount'] : ($transaction->amount ?? 0);
+                $paidAt = $invoiceData['tgljam'] ?? null;
+
+                // Konversi status - prioritaskan dari API jika tersedia
+                $finalStatus = $invoiceApiData && isset($invoiceApiData['status']) ? $invoiceApiData['status'] : $statusRaw;
+                $normalizedStatus = (string) $finalStatus === '1' || $finalStatus === 1 || $finalStatus === 'success' ? 'success' : 'failed';
+                $statusMessage = $normalizedStatus === 'success' ? 'Pembayaran berhasil' : 'Pembayaran gagal';
+
+                // Simpan response gateway & field terkait (termasuk data API jika ada)
+                $fullResponse = array_merge($payload, ['api_data' => $invoiceApiData]);
+                $transaction->gateway_reference = $gatewayReference ?: $transaction->gateway_reference;
+                $transaction->amount = $amount;
+                $transaction->total_amount = $amount;
+                if ($paidAt) {
+                    $transaction->paid_at = Carbon::parse($paidAt);
+                }
+                $transaction->gateway_response = $fullResponse;
+                $transaction->save();
+
+                // Update status menggunakan helper model
+                $transaction->updateStatus($normalizedStatus, $statusMessage);
+
+                // Buat MutationHistory jika sukses dan belum ada
+                if ($normalizedStatus === 'success') {
+                    $existingMutation = MutationHistory::where('code_callback', $transaction->trx_id)->first();
+                    if (!$existingMutation) {
+                        MutationHistory::create([
+                            'code_callback' => $transaction->trx_id,
+                            'nisn' => $transaction->nisn_siswa,
+                            'customer_name' => $invoiceData['nama'] ?? $transaction->customer_name,
+                            'information' => $invoiceData['product'] ?? 'Top Up Saldo',
+                            'debet' => 0,
+                            'kredit' => $amount,
+                            'date_trx' => $paidAt ? Carbon::parse($paidAt) : now(),
+                            'merchant_name' => $transaction->merchant_kode,
+                        ]);
+                    }
+                }
+            }
+
+            // Build data untuk tampilan detail
+            $detail = null;
+            if ($transaction) {
+                $detail = $transaction->getTransactionDetails();
+            } else if ($invoice || ($invoiceApiData && isset($invoiceApiData['invoice']))) {
+                // Fallback jika transaksi tidak ditemukan tetapi ingin tetap menampilkan payload atau data API
+                // Prioritaskan data dari API jika tersedia
+                $invoiceData = $invoiceApiData && isset($invoiceApiData['invoice']) ? $invoiceApiData['invoice'] : $invoice;
+                $finalStatus = $invoiceApiData && isset($invoiceApiData['status']) ? $invoiceApiData['status'] : $statusRaw;
+
+                // Decode items jika berupa string JSON
+                $itemsRaw = $invoiceData['items'] ?? null;
+                $items = $itemsRaw;
+                if (is_string($itemsRaw)) {
+                    try {
+                        $items = json_decode($itemsRaw, true) ?: $itemsRaw;
+                    } catch (\Throwable $e) {
+                        $items = $itemsRaw;
+                    }
+                }
+
+                $detail = [
+                    'trx_id' => $trxId ?: ($invoiceData['orderid'] ?? null),
+                    'customer_name' => $invoiceData['nama'] ?? null,
+                    'product' => $invoiceData['product'] ?? 'Top Up Saldo',
+                    'amount' => isset($invoiceData['amount']) ? (int) $invoiceData['amount'] : null,
+                    'total_amount' => isset($invoiceData['amount']) ? (int) $invoiceData['amount'] : null,
+                    'status' => ((string) $finalStatus === '1' || $finalStatus === 1 || $finalStatus === 'success') ? 'success' : 'failed',
+                    'gateway_reference' => $invoiceData['reference'] ?? null,
+                    'paid_at' => isset($invoiceData['tgljam']) ? Carbon::parse($invoiceData['tgljam'])->format('d M Y H:i') : null,
+                    'created_at' => isset($invoiceData['tgljam']) ? Carbon::parse($invoiceData['tgljam'])->format('d M Y H:i') : null,
+                    'items' => $items,
+                ];
+            }
+
+            // Jika request menginginkan JSON
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'payload' => $payload,
+                        'detail' => $detail,
+                    ]
+                ]);
+            }
+
+            return view('topup.callback', [
+                'payload' => $payload,
+                'detail' => $detail,
+                'invoiceApiData' => $invoiceApiData,
+            ]);
+
+        } catch (Exception $e) {
+            Log::error('Topup callback error: ' . $e->getMessage(), [
+                'trace' => $e->getTrace()
+            ]);
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal memproses callback: ' . $e->getMessage(),
+                ], 500);
+            }
+
+            return response()->view('topup.callback', [
+                'payload' => $request->all(),
+                'detail' => null,
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

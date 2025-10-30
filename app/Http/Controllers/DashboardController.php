@@ -43,11 +43,11 @@ class DashboardController extends Controller
         try {
             $saldo = MutationHistory::saldo($user->nisn, $user->merchant_kode);
         } catch (\Throwable $th) {
-            $saldo = 0;
+            $saldo = $user->saldo ?? 0;
         }
         session()->put('auth.saldo', $saldo);
 
-        return view('dashboard', compact('user', 'latestNotifications', 'unreadCount', 'limitedMenus', 'hasMore'));
+        return view('dashboard', compact('user', 'saldo', 'latestNotifications', 'unreadCount', 'limitedMenus', 'hasMore'));
     }
 
     protected function getMenus()

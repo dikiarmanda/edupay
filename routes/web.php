@@ -16,6 +16,9 @@ use App\Http\Controllers\IzinSiswaController;
 
 Route::get('/', [HomeController::class, 'splash'])->name('splash');
 
+// Topup Callback (PUBLIC): digunakan oleh gateway pembayaran untuk redirect/callback
+Route::match(['GET', 'POST'], '/topup/callback', [TopupController::class, 'callback'])->name('topup.callback');
+
 // Login Routes
 Route::get('/login', [LoginController::class, 'index'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');

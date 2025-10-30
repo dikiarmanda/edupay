@@ -83,6 +83,7 @@ class PaymentApiService
                         'customer' => $data['customer'],
                         'product' => $data['product'],
                         'items' => $data['items'],
+                        'redirect' => $data['redirect']
                     ]);
 
             if ($response->successful()) {
