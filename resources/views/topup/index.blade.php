@@ -83,18 +83,18 @@
       <!-- Filter Section -->
       <div id="filter-section" class="mb-6" style="display: none;">
         <div class="rounded-lg bg-white p-4 shadow-sm">
-          <form id="filterForm" method="POST" class="space-y-4">
+          <form id="filterForm" method="GET" action="{{ route('topup.index') }}" class="space-y-4">
             <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div>
-                <label for="tanggal_awal" class="mb-2 block text-sm font-medium text-gray-700">Tanggal Mulai</label>
-                <input type="text" id="tanggal_awal" name="tanggal_awal" value="{{ request('tanggal_awal') }}"
+                <label for="start_date" class="mb-2 block text-sm font-medium text-gray-700">Tanggal Mulai</label>
+                <input type="text" id="start_date" name="start_date" value="{{ request('start_date') }}"
                   placeholder="Pilih tanggal mulai"
                   class="w-full cursor-pointer rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
                   readonly>
               </div>
               <div>
-                <label for="tanggal_akhir" class="mb-2 block text-sm font-medium text-gray-700">Tanggal Akhir</label>
-                <input type="text" id="tanggal_akhir" name="tanggal_akhir" value="{{ request('tanggal_akhir') }}"
+                <label for="end_date" class="mb-2 block text-sm font-medium text-gray-700">Tanggal Akhir</label>
+                <input type="text" id="end_date" name="end_date" value="{{ request('end_date') }}"
                   placeholder="Pilih tanggal akhir"
                   class="w-full cursor-pointer rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
                   readonly>
@@ -119,7 +119,7 @@
 
       <!-- Riwayat Tab Content -->
       <div id="content-riwayat" class="mb-18 space-y-4" style="display: none;">
-        @if (request('tanggal_awal') || request('tanggal_akhir'))
+        @if (request('start_date') || request('end_date'))
           <div class="rounded-lg bg-blue-50 p-3">
             <div class="flex items-center">
               <svg class="mr-2 h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -128,10 +128,10 @@
               </svg>
               <p class="text-sm text-blue-800">
                 Menampilkan {{ $transactions->count() }} riwayat transaksi
-                @if (request('tanggal_awal') && request('tanggal_akhir'))
+                @if (request('start_date') && request('end_date'))
                   dari
-                  {{ \Carbon\Carbon::parse(request('tanggal_awal'))->translatedFormat('d M Y') }} sampai
-                  {{ \Carbon\Carbon::parse(request('tanggal_akhir'))->translatedFormat('d M Y') }}
+                  {{ \Carbon\Carbon::parse(request('start_date'))->translatedFormat('d M Y') }} sampai
+                  {{ \Carbon\Carbon::parse(request('end_date'))->translatedFormat('d M Y') }}
                 @endif
               </p>
             </div>
@@ -159,14 +159,10 @@
                   </div>
                 </div>
                 <div class="text-right">
-                  <p class="font-bold text-gray-900">{{ $transaction->formatted_amount }}</p>
-                  @if ($transaction->status === 'success')
-                    <a href="{{ route('topup.callback', ['trx_id' => $transaction->trx_id]) }}"
-                      class="mt-2 flex items-center space-x-1 rounded-lg bg-purple-50 px-3 py-1 text-sm text-purple-600 hover:bg-purple-100">
-                      <i data-lucide="file-text" class="h-4 w-4"></i>
-                      <span>Lihat Detail</span>
-                    </a>
-                  @elseif($transaction->status === 'pending')
+                  <p class="text-xl font-bold text-gray-900">
+                    Rp {{ number_format($transaction->amount, 0, ',', '.') }}
+                  </p>
+                  @if ($transaction->status === 'pending')
                     <div class="flex space-x-1">
                       <button onclick="checkPaymentStatus('{{ $transaction->trx_id }}')"
                         class="mt-2 flex items-center space-x-1 rounded-lg bg-purple-50 px-3 py-1 text-sm text-purple-600 hover:bg-purple-100">
@@ -177,6 +173,12 @@
                         <span>Bayar</span>
                       </a>
                     </div>
+                  @else
+                    <a href="{{ route('topup.callback', ['trx_id' => $transaction->trx_id]) }}"
+                      class="mt-2 flex items-center space-x-1 rounded-lg bg-purple-50 px-3 py-1 text-sm text-purple-600 hover:bg-purple-100">
+                      <i data-lucide="file-text" class="h-4 w-4"></i>
+                      <span>Lihat Detail</span>
+                    </a>
                   @endif
                 </div>
               </div>
@@ -232,7 +234,7 @@
     document.addEventListener('DOMContentLoaded', function() {
       // Check if we have filter parameters in URL
       const urlParams = new URLSearchParams(window.location.search);
-      const hasFilter = urlParams.has('tanggal_awal') || urlParams.has('tanggal_akhir');
+      const hasFilter = urlParams.has('start_date') || urlParams.has('end_date');
 
       // If coming from filtered view, show riwayat tab
       if (hasFilter) {
@@ -369,45 +371,6 @@
         });
     }
 
-    function toggleFilter() {
-      const filterSection = document.getElementById('filter-section');
-      const filterToggleText = document.getElementById('filter-toggle-text');
-
-      if (filterSection.style.display === 'none' || filterSection.style.display === '') {
-        filterSection.style.display = 'block';
-        filterToggleText.textContent = 'Sembunyikan Filter';
-
-        // Initialize Flatpickr when filter is shown
-        setTimeout(() => {
-          if (typeof window.initializeFlatpickr === 'function') {
-            window.initializeFlatpickr();
-          }
-        }, 100);
-      } else {
-        filterSection.style.display = 'none';
-        filterToggleText.textContent = 'Tampilkan Filter';
-      }
-    }
-
-    function resetFilter() {
-      // Reset date values
-      const today = new Date();
-      const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-
-      document.getElementById('tanggal_awal').value =
-        `${firstDayOfMonth.getFullYear()}-${String(firstDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(firstDayOfMonth.getDate()).padStart(2, '0')}`;
-      document.getElementById('tanggal_akhir').value =
-        `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
-      // Submit form
-      document.getElementById('filterForm').submit();
-    }
-
-    function showTransactionDetail(trxId) {
-      // Show transaction detail modal or redirect to detail page
-      showToast(`Menampilkan detail transaksi: ${trxId}`, 'info');
-    }
-
     function checkPaymentStatus(trxId) {
       const button = event.target;
       button.textContent = 'Proses Cek...';
@@ -442,6 +405,45 @@
           console.error('Error:', error);
           showToast('Terjadi kesalahan saat mengecek status', 'error');
         });
+    }
+
+    function toggleFilter() {
+      const filterSection = document.getElementById('filter-section');
+      const filterToggleText = document.getElementById('filter-toggle-text');
+
+      if (filterSection.style.display === 'none' || filterSection.style.display === '') {
+        filterSection.style.display = 'block';
+        filterToggleText.textContent = 'Sembunyikan Filter';
+
+        // Initialize Flatpickr when filter is shown
+        setTimeout(() => {
+          if (typeof window.initializeFlatpickr === 'function') {
+            window.initializeFlatpickr();
+          }
+        }, 100);
+      } else {
+        filterSection.style.display = 'none';
+        filterToggleText.textContent = 'Tampilkan Filter';
+      }
+    }
+
+    function resetFilter() {
+      // Reset date values
+      const today = new Date();
+      const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+      document.getElementById('start_date').value =
+        `${firstDayOfMonth.getFullYear()}-${String(firstDayOfMonth.getMonth() + 1).padStart(2, '0')}-${String(firstDayOfMonth.getDate()).padStart(2, '0')}`;
+      document.getElementById('end_date').value =
+        `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+      // Submit form
+      document.getElementById('filterForm').submit();
+    }
+
+    function showTransactionDetail(trxId) {
+      // Show transaction detail modal or redirect to detail page
+      showToast(`Menampilkan detail transaksi: ${trxId}`, 'info');
     }
   </script>
 

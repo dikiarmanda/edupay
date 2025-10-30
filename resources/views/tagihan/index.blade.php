@@ -53,7 +53,7 @@
                 <span class="text-xs text-gray-500">Filter aktif:</span>
                 @if (request('bulan'))
                   <span class="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700">
-                    {{ $bulanList[request('bulan')] ?? request('bulan') }}
+                    {{ bulanList()[request('bulan')] ?? request('bulan') }}
                   </span>
                 @endif
                 @if (request('tahun'))
@@ -83,7 +83,7 @@
                 </div>
               </div>
               <div class="text-right">
-                <p class="text-lg font-bold text-gray-900">Rp{{ number_format($tagihan->total, 0, ',', '.') }}</p>
+                <p class="text-lg font-bold text-gray-900">Rp {{ number_format($tagihan->total, 0, ',', '.') }}</p>
                 <button onclick="openPaymentModal({{ $tagihan->id }}, {{ $tagihan }})"
                   class="mt-2 rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">
                   Bayar
@@ -115,7 +115,7 @@
                 <label class="mb-2 block text-sm font-medium text-gray-700">Bulan</label>
                 <select name="bulan" id="filterBulan" class="w-full">
                   <option value="">Semua Bulan</option>
-                  @foreach ($bulanList as $key => $bulan)
+                  @foreach (bulanList() as $key => $bulan)
                     <option value="{{ $key }}" {{ request('bulan') == $key ? 'selected' : '' }}>
                       {{ $bulan }}</option>
                   @endforeach
@@ -126,7 +126,7 @@
                 <label class="mb-2 block text-sm font-medium text-gray-700">Tahun</label>
                 <select name="tahun" id="filterTahun" class="w-full">
                   <option value="">Semua Tahun</option>
-                  @foreach ($tahunList as $tahun)
+                  @foreach (range(date('Y') + 1, 2020) as $tahun)
                     <option value="{{ $tahun }}" {{ request('tahun') == $tahun ? 'selected' : '' }}>
                       {{ $tahun }}</option>
                   @endforeach
@@ -168,9 +168,9 @@
               <p class="text-sm text-blue-800">
                 Menampilkan {{ $tagihanLunas->count() }} tagihan
                 @if (request('bulan') && request('tahun'))
-                  untuk {{ $bulanList[request('bulan')] ?? request('bulan') }} {{ request('tahun') }}
+                  untuk {{ bulanList()[request('bulan')] ?? request('bulan') }} {{ request('tahun') }}
                 @elseif(request('bulan'))
-                  untuk bulan {{ $bulanList[request('bulan')] ?? request('bulan') }}
+                  untuk bulan {{ bulanList()[request('bulan')] ?? request('bulan') }}
                 @elseif(request('tahun'))
                   untuk tahun {{ request('tahun') }}
                 @endif
@@ -195,7 +195,7 @@
                   {{ $tagihan->tgl_bayar ? $tagihan->tgl_bayar->translatedFormat('d M Y') : '-' }}</p>
               </div>
               <div class="text-right">
-                <p class="text-lg font-bold text-gray-900">Rp{{ number_format($tagihan->total, 0, ',', '.') }}</p>
+                <p class="text-lg font-bold text-gray-900">Rp {{ number_format($tagihan->total, 0, ',', '.') }}</p>
                 <button onclick="viewReceipt({{ $tagihan->id }})"
                   class="mt-2 rounded-lg bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-100">
                   Lihat Struk

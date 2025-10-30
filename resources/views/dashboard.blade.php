@@ -34,7 +34,7 @@
     <div class="gradient-bg floating-shapes relative rounded-2xl p-6 text-white">
       <div class="mb-4 flex items-center justify-between">
         <div class="flex items-center space-x-2">
-          <h3 class="font-semibold">{{ $user->nama }}</h3>
+          <h1 class="text-2xl font-semibold">{{ $user->nama }}</h1>
         </div>
         <div class="flex items-center space-x-2">
           <div class="rounded-lg bg-purple-500 px-3 py-1">
@@ -81,7 +81,7 @@
   </div>
 
   <!-- Achievements and Events -->
-  <div class="mb-15 px-4">
+  {{-- <div class="mb-15 px-4">
     <div class="mb-4 flex items-center justify-between">
       <h3 class="text-lg font-bold text-gray-900">Prestasi dan Event Kegiatan</h3>
       <a href="#" class="text-sm font-medium text-purple-600">Lihat Semua</a>
@@ -104,7 +104,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </div> --}}
 
   <!-- Off Canvas Notification Panel -->
   <div id="notificationPanel" class="z-51 fixed inset-0 hidden transition-all duration-300 ease-in-out">
@@ -223,27 +223,25 @@
 
     // Function untuk menandai semua notifikasi sebagai sudah dibaca
     function markAllAsRead() {
-      if (confirm('Apakah Anda yakin ingin menandai semua notifikasi sebagai sudah dibaca?')) {
-        fetch('/notifikasi/mark-all-read', {
-            method: 'POST',
-            headers: {
-              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-              'Content-Type': 'application/json',
-            },
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              location.reload();
-            } else {
-              alert('Gagal menandai semua notifikasi sebagai sudah dibaca');
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan');
-          });
-      }
+      fetch('/notifikasi/mark-all-read', {
+          method: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Content-Type': 'application/json',
+          },
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            location.reload();
+          } else {
+            alert('Gagal menandai semua notifikasi sebagai sudah dibaca');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Terjadi kesalahan');
+        });
     }
   </script>
 @endsection

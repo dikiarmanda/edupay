@@ -18,12 +18,14 @@ class TagihanController extends Controller
         // Ambil data tagihan siswa yang aktif
         $tagihanBelumLunas = TagihanSiswa::aktif()
             ->belumLunas()
+            ->where('nisn', $user->nisn)
             ->orderBy('created_at', 'desc')
             ->get();
 
         // Query untuk tagihan lunas dengan filter
         $tagihanLunasQuery = TagihanSiswa::aktif()
             ->lunas()
+            ->where('nisn', $user->nisn)
             ->orderBy('tgl_bayar', 'desc');
 
         // Filter berdasarkan bulan jika ada
@@ -38,30 +40,7 @@ class TagihanController extends Controller
 
         $tagihanLunas = $tagihanLunasQuery->get();
 
-        // Ambil data untuk dropdown filter
-        $bulanList = [
-            '01' => 'Januari',
-            '02' => 'Februari',
-            '03' => 'Maret',
-            '04' => 'April',
-            '05' => 'Mei',
-            '06' => 'Juni',
-            '07' => 'Juli',
-            '08' => 'Agustus',
-            '09' => 'September',
-            '10' => 'Oktober',
-            '11' => 'November',
-            '12' => 'Desember'
-        ];
-
-        $tahunList = TagihanSiswa::aktif()
-            ->lunas()
-            ->distinct()
-            ->pluck('tahun_ajaran')
-            ->sort()
-            ->values();
-
-        return view('tagihan.index', compact('tagihanBelumLunas', 'tagihanLunas', 'bulanList', 'tahunList', 'saldo'));
+        return view('tagihan.index', compact('tagihanBelumLunas', 'tagihanLunas', 'saldo'));
     }
 
     public function bayar(Request $request, $id)

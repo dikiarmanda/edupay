@@ -184,7 +184,7 @@ class DashboardController extends Controller
                 'amount' => $amount,
                 'is_credit' => $isCredit,
                 'date_trx' => $mutation->date_trx,
-                'formatted_date' => $mutation->date_trx->format('d M Y, H:i'),
+                'formatted_date' => $mutation->date_trx->translatedFormat('d M Y, H:i'),
                 'formatted_amount' => 'Rp ' . number_format((float) $amount, 0, ',', '.'),
                 'icon' => $isCredit ? 'arrow-down' : 'arrow-up',
                 'icon_color' => $isCredit ? 'green' : 'red',

@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MutationHistory;
-use App\Services\PaymentApiService;
-use App\Models\TransactionHistory;
+use Exception;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
+use App\Models\Notification;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\MutationHistory;
+use App\Models\TransactionHistory;
+use App\Services\PaymentApiService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
-use Carbon\Carbon;
-use Exception;
 
 class TopupController extends Controller
 {
@@ -28,21 +28,20 @@ class TopupController extends Controller
     public function index(Request $request)
     {
         $user = (object) session('auth');
-        $tglAwal = $request->filled('tanggal_awal') ? $request->tanggal_awal : date('Y-m-01');
-        $tglAkhir = $request->filled('tanggal_akhir') ? $request->tanggal_akhir : date('Y-m-d');
+        $tglAwal = $request->filled('start_date') ? $request->start_date : date('Y-m-01');
+        $tglAkhir = $request->filled('end_date') ? $request->end_date : date('Y-m-d');
 
         // Ambil riwayat transaksi untuk tab riwayat dengan filter
         $transactionsQuery = TransactionHistory::where('merchant_kode', $user->merchant_kode)
             ->orderBy('created_at', 'desc');
 
-
         // Filter berdasarkan tanggal awal jika ada
-        if ($request->filled('tanggal_awal')) {
+        if ($request->filled('start_date')) {
             $transactionsQuery->whereDate('created_at', '>=', $tglAwal);
         }
 
         // Filter berdasarkan tanggal akhir jika ada
-        if ($request->filled('tanggal_akhir')) {
+        if ($request->filled('end_date')) {
             $transactionsQuery->whereDate('created_at', '<=', $tglAkhir);
         }
 
@@ -163,30 +162,30 @@ class TopupController extends Controller
                 ]);
                 return;
             }
+            $user = (object) session('auth');
 
             // Cek status ke API
             $apiStatus = $this->paymentApiService->checkInvoiceStatus($transaction->gateway_reference);
 
             // Update status berdasarkan response API
             if (isset($apiStatus['status'])) {
-                // Konversi status dari API (biasanya '1' untuk success, '0' atau lainnya untuk failed)
                 $status = ($apiStatus['status'] == '1' || $apiStatus['status'] === 'success') ? 'success' : 'failed';
 
                 $statusMessage = match ($status) {
-                    'success' => 'Pembayaran berhasil',
-                    'failed' => 'Pembayaran gagal',
+                    'success' => 'Top Up Saldo berhasil',
+                    'failed' => 'Top Up Saldo gagal',
                     default => 'Status tidak diketahui'
                 };
 
-                $transaction->updateStatus(
-                    $status,
-                    $statusMessage,
-                    $apiStatus
-                );
+                // cek belum expired_at
+                if ($transaction->expired_at > now()) {
+                    return;
+                }
+
+                $transaction->updateStatus($status, $statusMessage, $apiStatus);
 
                 // Jika berhasil, buat mutation history
                 if ($status === 'success') {
-                    $user = (object) session('auth');
 
                     // Cek apakah mutation history sudah ada untuk transaksi ini
                     $existingMutation = MutationHistory::where('code_callback', $transaction->trx_id)->first();
@@ -204,8 +203,15 @@ class TopupController extends Controller
                         ]);
                     }
                 }
-            }
 
+                Notification::create([
+                    'merchant_kode' => $transaction->merchant_kode,
+                    'judul' => $statusMessage,
+                    'pesan' => 'Top Up Saldo sebesar Rp ' . number_format($transaction->amount, 0, ',', '.') . ($apiStatus['status'] == '1' ? ' berhasil' : ' gagal') . ' diproses.',
+                    'tipe' => $apiStatus['status'] == '1' ? 'success' : 'error',
+                    'is_read' => false,
+                ]);
+            }
         } catch (Exception $e) {
             Log::error('Error checking transaction status: ' . $e->getMessage(), [
                 'trx_id' => $transaction->trx_id ?? null,

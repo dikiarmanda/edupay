@@ -25,5 +25,6 @@ class AppServiceProvider extends ServiceProvider
 
         // Set Carbon locale ke Indonesia
         Carbon::setLocale('id');
+        require_once app_path('Helpers/GeneralHelper.php');
     }
 }
