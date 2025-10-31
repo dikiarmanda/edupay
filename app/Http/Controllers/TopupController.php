@@ -80,7 +80,7 @@ class TopupController extends Controller
             $amount = $request->amount;
 
             // Generate unique transaction ID
-            $trxId = $user->merchant_kode . '-' . Str::random(8);
+            $trxId = $user->merchant_kode . date('ymd') . strtoupper(Str::random(4));
 
             // Siapkan data untuk API
             $invoiceData = [
