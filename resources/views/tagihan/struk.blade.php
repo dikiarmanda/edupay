@@ -59,7 +59,7 @@
 
           <div class="flex justify-between">
             <span class="text-gray-600">Periode:</span>
-            <span class="font-medium">{{ $tagihan->nama_bulan }} {{ $tagihan->tahun_ajaran }}</span>
+            <span class="font-medium">{{ bulanList()[$tagihan->bulan] }} {{ $tagihan->tahun }}</span>
           </div>
 
           <div class="mt-4 h-px bg-gray-200"></div>
@@ -100,7 +100,7 @@
       <div class="no-print mt-6 space-y-3">
         <a href="{{ route('tagihan.download-pdf', $tagihan->id) }}"
           class="block w-full rounded-lg bg-purple-600 px-4 py-3 text-center font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
-          <i data-lucide="download" class="inline h-6 w-6 text-white mr-1"></i>Unduh Bukti Pembayaran
+          <i data-lucide="download" class="mr-1 inline h-6 w-6 text-white"></i>Unduh Bukti Pembayaran
         </a>
       </div>
     </div>

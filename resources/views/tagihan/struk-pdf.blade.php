@@ -429,7 +429,7 @@
               </svg>
               <span>Periode:</span>
             </div>
-            <span class="info-value">{{ bulanList()[$tagihan->bulan] }} {{ $tagihan->tahun_ajaran }}</span>
+            <span class="info-value">{{ bulanList()[$tagihan->bulan] }} {{ $tagihan->tahun }}</span>
           </div>
         </div>
 

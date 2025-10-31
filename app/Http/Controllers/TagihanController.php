@@ -35,7 +35,7 @@ class TagihanController extends Controller
 
         // Filter berdasarkan tahun jika ada
         if ($request->filled('tahun')) {
-            $tagihanLunasQuery->where('tahun_ajaran', $request->tahun);
+            $tagihanLunasQuery->where('tahun', $request->tahun);
         }
 
         $tagihanLunas = $tagihanLunasQuery->get();

@@ -74,7 +74,7 @@
             <div class="flex items-start justify-between">
               <div class="flex-1">
                 <h3 class="font-bold text-gray-900">{{ $tagihan->tagihan }}
-                  {{ $tagihan->nama_bulan != null ? ' - ' . $tagihan->nama_bulan : '' }} </h3>
+                  {{ $tagihan->bulan != null ? ' - ' . bulanList()[$tagihan->bulan] : '' }} </h3>
                 <div class="mt-2 flex items-center space-x-2">
                   <span
                     class="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-600">{{ $tagihan->status_pembayaran_text }}</span>
@@ -183,8 +183,8 @@
           <div class="rounded-lg bg-white p-4 shadow-sm">
             <div class="flex items-start justify-between">
               <div class="flex-1">
-                <h3 class="font-bold text-gray-900">{{ $tagihan->tagihan }} - {{ $tagihan->nama_bulan }}
-                  {{ $tagihan->tahun_ajaran }}</h3>
+                <h3 class="font-bold text-gray-900">{{ $tagihan->tagihan }} - {{ bulanList()[$tagihan->bulan] }}
+                  {{ $tagihan->tahun }}</h3>
                 <div class="mt-2 flex items-center space-x-2">
                   <span
                     class="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-600">{{ $tagihan->status_pembayaran_text }}</span>
