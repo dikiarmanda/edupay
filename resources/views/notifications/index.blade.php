@@ -3,24 +3,21 @@
 @section('title', 'Notifikasi')
 
 @section('content')
-  <div class="min-h-screen bg-gray-50 py-6">
-    <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-      <!-- Header -->
-      <div class="mb-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="text-2xl font-bold text-gray-900">Notifikasi</h1>
-            <p class="mt-1 text-sm text-gray-600">{{ $totalNotifications }} total • {{ $unreadCount }} belum dibaca</p>
-          </div>
-          @if ($unreadCount > 0)
-            <button onclick="markAllAsRead()"
-              class="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700">
-              <i class="fas fa-check-double mr-2"></i>
-              Tandai Semua Dibaca
-            </button>
-          @endif
-        </div>
-      </div>
+  <div class="mb-18 w-full p-4">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+      <x-header title="Notifikasi" subtitle="{{ $totalNotifications }} total • {{ $unreadCount }} belum dibaca"
+        backUrl="{{ route('dashboard') }}" />
+
+      @if ($unreadCount > 0)
+        <x-button onclick="markAllAsRead()" type="info" class="ml-auto text-sm">
+          <i data-lucide="check-check" class="mr-2 h-4 w-4"></i>
+          Tandai Semua Dibaca
+        </x-button>
+      @endif
+    </div>
+
+    <div class="mx-auto">
 
       <!-- Filter Tabs -->
       <div class="mb-6">
@@ -47,16 +44,16 @@
         @if ($notifications->count() > 0)
           @foreach ($notifications as $notification)
             <div
-              class="{{ !$notification->is_read ? 'border-l-4 border-blue-500' : '' }} rounded-lg bg-white p-4 shadow-sm">
+              class="{{ !$notification->is_read ? 'border-l-4 border-blue-500' : 'border border-gray-200' }} rounded-lg p-4 shadow-sm">
               <div class="flex items-start space-x-3">
                 <div class="flex-shrink-0">
                   <div
                     class="{{ $notification->getTypeClass() }} flex h-10 w-10 items-center justify-center rounded-full">
-                    <i class="fas fa-{{ $notification->getTypeIcon() }} text-sm"></i>
+                    <i data-lucide="{{ $notification->getTypeIcon() }}" class="text-xs"></i>
                   </div>
                 </div>
                 <div class="min-w-0 flex-1">
-                  <div class="flex items-start justify-between">
+                  <div class="mb-2 flex items-start justify-between">
                     <div class="flex-1">
                       <div class="mb-1 flex items-center space-x-2">
                         <h3 class="text-sm font-semibold text-gray-900">{{ $notification->judul }}</h3>
@@ -64,36 +61,28 @@
                           <div class="h-2 w-2 rounded-full bg-blue-500"></div>
                         @endif
                       </div>
-                      <p class="mb-2 text-sm text-gray-600">{{ Str::limit($notification->pesan, 120) }}</p>
-                      <div class="flex items-center space-x-4 text-xs text-gray-500">
-                        <span>{{ $notification->created_at->diffForHumans() }}</span>
-                        @if ($notification->nisn)
-                          <span><i class="fas fa-user mr-1"></i>{{ $notification->nisn }}</span>
-                        @endif
-                        @if ($notification->merchant_kode)
-                          <span><i class="fas fa-school mr-1"></i>{{ $notification->merchant_kode }}</span>
-                        @endif
-                      </div>
+                      <p class="text-sm text-gray-600">{{ Str::limit($notification->pesan, 50) }}</p>
                     </div>
-                    <div class="ml-4 flex flex-col space-y-1">
-                      <a href="{{ route('notifikasi.show', $notification) }}"
-                        class="text-xs text-blue-600 hover:text-blue-800">
-                        <i class="fas fa-eye mr-1"></i>
-                        Lihat
-                      </a>
-                      @if (!$notification->is_read)
-                        <button onclick="markAsRead({{ $notification->id }})"
-                          class="text-xs text-green-600 hover:text-green-800">
-                          <i class="fas fa-check mr-1"></i>
-                          Tandai Dibaca
-                        </button>
-                      @endif
-                      <button onclick="deleteNotification({{ $notification->id }})"
-                        class="text-xs text-red-600 hover:text-red-800">
-                        <i class="fas fa-trash mr-1"></i>
-                        Hapus
-                      </button>
+                    <div class="ml-4 text-right">
+                      <span class="text-xs text-gray-500">{{ $notification->created_at->diffForHumans() }}</span>
                     </div>
+                  </div>
+                  <div class="mt-3 flex items-center justify-end space-x-2 border-t border-gray-100 pt-3">
+                    @if (!$notification->is_read)
+                      <x-button onclick="markAsRead({{ $notification->id }})" type="inverse-success" class="text-xs">
+                        <i data-lucide="check" class="mr-1 h-3 w-3"></i>
+                        Tandai Dibaca
+                      </x-button>
+                    @endif
+                    <x-button href="{{ route('notifikasi.show', $notification) }}" type="inverse-info" class="text-xs">
+                      <i data-lucide="eye" class="mr-1 h-3 w-3"></i>
+                      Lihat
+                    </x-button>
+                    <x-button onclick="deleteNotification({{ $notification->id }})" type="inverse-danger"
+                      class="text-xs">
+                      <i data-lucide="trash" class="mr-1 h-3 w-3"></i>
+                      Hapus
+                    </x-button>
                   </div>
                 </div>
               </div>

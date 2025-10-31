@@ -1,28 +1,28 @@
 @extends('layouts.app')
 
 @section('content')
-  <div class="min-h-screen bg-gray-100">
+  <div class="mb-18 w-full p-4">
+    <!-- Header -->
+    <x-header title="Isi Saldo" backUrl="{{ route('dashboard') }}" />
+
     <!-- Tab Navigation -->
-    <div class="bg-white shadow-sm">
-      <div class="mx-auto max-w-md px-4 py-3">
-        <div class="flex">
-          <button id="tab-topup" onclick="switchTab('topup')">
-            Isi Saldo
-          </button>
-          <button id="tab-riwayat" onclick="switchTab('riwayat')">
-            Riwayat
-          </button>
-        </div>
+    <div class="mb-4">
+      <div class="flex">
+        <button id="tab-topup" onclick="switchTab('topup')">
+          Isi Saldo
+        </button>
+        <button id="tab-riwayat" onclick="switchTab('riwayat')">
+          Riwayat
+        </button>
       </div>
     </div>
 
     <!-- Main Content -->
-    <div class="mx-auto max-w-md px-4 py-6">
+    <div class="mx-auto">
       <!-- Isi Saldo Tab Content -->
-      <div id="content-topup" class="rounded-2xl bg-white p-6 shadow-sm">
-        <!-- Title and Description -->
-        <div class="mb-8">
-          <h1 class="mb-2 text-2xl font-bold text-gray-900">Isi Saldo</h1>
+      <div id="content-topup" class="mb-18 rounded-2xl border border-gray-200 p-6 shadow-sm">
+
+        <div class="mb-5">
           <p class="text-sm leading-relaxed text-gray-600">
             Pilih jumlah dan metode pembayaran untuk menambahkan dana ke akun Anda.
           </p>
@@ -59,30 +59,28 @@
         </div>
 
         <!-- Continue Button -->
-        <button onclick="proceedToPayment()"
-          class="w-full rounded-lg bg-purple-600 px-6 py-4 font-medium text-white transition-colors hover:bg-purple-700">
+        <x-button type="primary" onclick="proceedToPayment()" class="w-full py-4">
           Lanjut ke Pembayaran
-        </button>
+        </x-button>
       </div>
 
       <!-- Filter Toggle Button -->
       <div id="filter-toggle" class="mb-3" style="display: none;">
         <div class="flex items-center justify-between">
-          <button onclick="toggleFilter()"
-            class="flex items-center space-x-2 rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <x-button type="neutral" onclick="toggleFilter()">
+            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z">
               </path>
             </svg>
             <span id="filter-toggle-text">Tampilkan Filter</span>
-          </button>
+          </x-button>
         </div>
       </div>
 
       <!-- Filter Section -->
       <div id="filter-section" class="mb-6" style="display: none;">
-        <div class="rounded-lg bg-white p-4 shadow-sm">
+        <div class="rounded-lg border border-gray-200 p-4 shadow-sm">
           <form id="filterForm" method="GET" action="{{ route('topup.index') }}" class="space-y-4">
             <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div>
@@ -100,17 +98,15 @@
                   readonly>
               </div>
               <div class="flex items-end space-x-2">
-                <button type="submit" id="filterSubmitBtn"
-                  class="w-full rounded-lg bg-purple-600 px-4 py-2 font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                <x-button type="primary" as="submit" id="filterSubmitBtn" class="w-full">
                   <span id="filterSubmitText">Filter</span>
-                  <i data-lucide="search" class="ml-2 inline h-4 w-4"></i>
-                </button>
+                  <i data-lucide="search" class="ml-2 h-4 w-4"></i>
+                </x-button>
               </div>
               <div class="col-span-3">
-                <button type="button" onclick="resetFilter()"
-                  class="w-full rounded-lg bg-gray-100 px-4 py-2 font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                <x-button type="neutral" onclick="resetFilter()" class="w-full">
                   Reset
-                </button>
+                </x-button>
               </div>
             </div>
           </form>
@@ -140,7 +136,7 @@
 
         @if ($transactions && $transactions->count() > 0)
           @foreach ($transactions as $transaction)
-            <div class="rounded-lg bg-white p-4 shadow-sm">
+            <div class="rounded-lg border border-gray-200 p-4 shadow-sm">
               <div class="flex items-center justify-between">
                 <div class="flex-1">
                   <h3 class="font-medium text-gray-900">{{ $transaction->product }}</h3>
@@ -164,21 +160,22 @@
                   </p>
                   @if ($transaction->status === 'pending')
                     <div class="flex space-x-1">
-                      <button onclick="checkPaymentStatus('{{ $transaction->trx_id }}')"
-                        class="mt-2 flex items-center space-x-1 rounded-lg bg-purple-50 px-3 py-1 text-sm text-purple-600 hover:bg-purple-100">
-                        Cek Status</button>
-                      <a href="{{ $transaction->gateway_url }}" target="_blank"
-                        class="mt-2 flex items-center space-x-1 rounded-lg bg-blue-50 px-3 py-1 text-sm text-blue-600 hover:bg-blue-100">
-                        <i data-lucide="credit-card" class="h-4 w-4"></i>
+                      <x-button type="inverse" onclick="checkPaymentStatus('{{ $transaction->trx_id }}')"
+                        class="mt-2 py-1 text-sm">
+                        Cek Status
+                      </x-button>
+                      <x-button type="success" href="{{ $transaction->gateway_url }}" target="_blank"
+                        class="mt-2 py-1 text-sm">
+                        <i data-lucide="credit-card" class="mr-1 h-4 w-4"></i>
                         <span>Bayar</span>
-                      </a>
+                      </x-button>
                     </div>
                   @else
-                    <a href="{{ route('topup.callback', ['trx_id' => $transaction->trx_id]) }}"
-                      class="mt-2 flex items-center space-x-1 rounded-lg bg-purple-50 px-3 py-1 text-sm text-purple-600 hover:bg-purple-100">
-                      <i data-lucide="file-text" class="h-4 w-4"></i>
+                    <x-button type="inverse" href="{{ route('topup.callback', ['trx_id' => $transaction->trx_id]) }}"
+                      class="mt-2 py-1 text-sm">
+                      <i data-lucide="file-text" class="mr-1 h-4 w-4"></i>
                       <span>Lihat Detail</span>
-                    </a>
+                    </x-button>
                   @endif
                 </div>
               </div>
@@ -258,8 +255,6 @@
       } else {
         switchTab('topup');
       }
-
-      document.getElementById('navDashboard').classList.add('active');
     });
 
     document.getElementById('customAmount').addEventListener('input', function(e) {

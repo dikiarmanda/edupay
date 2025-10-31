@@ -1,28 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
-  <div class="min-h-screen bg-gray-100">
+  <div class="mb-18 w-full p-4">
     <!-- Header -->
-    <div class="bg-white shadow-sm">
-      <div class="mx-auto max-w-md px-4 py-4">
-        <div class="flex items-center space-x-3">
-          <button onclick="history.back()" class="flex-shrink-0">
-            <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-          </button>
-          <h1 class="text-lg font-semibold text-gray-900">Tagihan</h1>
-        </div>
-      </div>
-    </div>
+    <x-header title="Tagihan" subtitle="Lihat dan kelola semua tagihan sekolah Anda" backUrl="{{ route('dashboard') }}" />
 
     <!-- Main Content -->
-    <div class="mx-auto max-w-md px-4 py-6">
-      <!-- Title and Description -->
-      <div class="mb-6">
-        <h1 class="mb-2 text-2xl font-bold text-gray-900">Tagihan</h1>
-        <p class="text-sm text-gray-600">Lihat dan kelola semua tagihan sekolah Anda.</p>
-      </div>
+    <div class="mx-auto py-6">
 
       <!-- Tab Navigation -->
       <div class="mb-4">
@@ -38,15 +22,14 @@
         <!-- Filter Toggle Button -->
         <div id="filter-toggle" class="mt-3" style="display: none;">
           <div class="flex items-center justify-between">
-            <button onclick="toggleFilter()"
-              class="flex items-center space-x-2 rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <x-button type="neutral" onclick="toggleFilter()">
+              <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z">
                 </path>
               </svg>
               <span id="filter-toggle-text">Tampilkan Filter</span>
-            </button>
+            </x-button>
 
             @if (request('bulan') || request('tahun'))
               <div class="flex items-center space-x-2">
@@ -70,7 +53,7 @@
       <!-- Bills List -->
       <div id="content-belum-lunas" class="space-y-4">
         @forelse($tagihanBelumLunas as $tagihan)
-          <div class="rounded-lg bg-white p-4 shadow-sm">
+          <div class="rounded-lg border border-gray-200 p-4 shadow-sm">
             <div class="flex items-start justify-between">
               <div class="flex-1">
                 <h3 class="font-bold text-gray-900">{{ $tagihan->tagihan }}
@@ -84,10 +67,8 @@
               </div>
               <div class="text-right">
                 <p class="text-lg font-bold text-gray-900">Rp {{ number_format($tagihan->total, 0, ',', '.') }}</p>
-                <button onclick="openPaymentModal({{ $tagihan->id }}, {{ $tagihan }})"
-                  class="mt-2 rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">
-                  Bayar
-                </button>
+                <x-button type="success"
+                  onclick="openPaymentModal({{ $tagihan->id }}, {{ $tagihan }})">Bayar</x-button>
               </div>
             </div>
           </div>
@@ -135,21 +116,19 @@
             </div>
 
             <div class="flex space-x-3">
-              <button type="submit" id="filterSubmitBtn"
-                class="flex-1 rounded-lg bg-purple-600 px-4 py-2 font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+              <x-button type="primary" as="submit" id="filterSubmitBtn" class="flex-1">
                 <span id="filterSubmitText">Terapkan Filter</span>
-                <svg id="filterLoadingIcon" class="hidden h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <svg id="filterLoadingIcon" class="ml-2 hidden h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
                   </circle>
                   <path class="opacity-75" fill="currentColor"
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                   </path>
                 </svg>
-              </button>
-              <button type="button" onclick="resetFilter()"
-                class="flex-1 rounded-lg bg-gray-100 px-4 py-2 font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+              </x-button>
+              <x-button type="neutral" onclick="resetFilter()" class="flex-1">
                 Reset
-              </button>
+              </x-button>
             </div>
 
           </form>
@@ -195,11 +174,11 @@
                   {{ $tagihan->tgl_bayar ? $tagihan->tgl_bayar->translatedFormat('d M Y') : '-' }}</p>
               </div>
               <div class="text-right">
-                <p class="text-lg font-bold text-gray-900">Rp {{ number_format($tagihan->total, 0, ',', '.') }}</p>
-                <button onclick="viewReceipt({{ $tagihan->id }})"
-                  class="mt-2 rounded-lg bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-100">
+                <p class="mb-2 text-lg font-bold text-gray-900">Rp {{ number_format($tagihan->total, 0, ',', '.') }}</p>
+                <x-button type="inverse-info" onclick="viewReceipt({{ $tagihan->id }})">
+                  <i data-lucide="receipt" class="mr-1 h-4 w-4"></i>
                   Lihat Struk
-                </button>
+                </x-button>
               </div>
             </div>
           </div>
@@ -318,14 +297,13 @@
         </div>
 
         <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-          <button type="button" onclick="submitPayment()"
-            class="inline-flex w-full justify-center rounded-lg border border-transparent bg-purple-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm">
+          <x-button type="primary" onclick="submitPayment()" class="w-full sm:ml-3 sm:w-auto sm:text-sm">
             Bayar Sekarang
-          </button>
-          <button type="button" onclick="closePaymentModal()"
-            class="mt-3 inline-flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 sm:ml-3 sm:mt-0 sm:w-auto sm:text-sm">
+          </x-button>
+          <x-button type="outline" onclick="closePaymentModal()"
+            class="mt-3 w-full sm:ml-3 sm:mt-0 sm:w-auto sm:text-sm">
             Batal
-          </button>
+          </x-button>
         </div>
       </div>
     </div>
@@ -349,7 +327,7 @@
 
       contentElements.forEach(element => element.style.display = 'none');
       tabButtons.forEach(button => {
-        button.className = 'flex-1 rounded-lg bg-white px-4 py-2 text-center font-medium text-gray-700';
+        button.className = 'flex-1 rounded-lg bg-gray-100 px-4 py-2 text-center font-medium text-gray-700';
         if (button.id == 'tab-riwayat') {
           button.classList.add('rounded-l-none');
         } else {

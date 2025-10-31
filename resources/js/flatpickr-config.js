@@ -1,81 +1,84 @@
 // Flatpickr Configuration untuk EduPay
 export function initializeFlatpickr() {
-    // Initialize Flatpickr untuk tanggal mulai
-    const startDatePicker = flatpickr("#start_date", {
-        locale: "id",
-        dateFormat: "Y-m-d",
-        allowInput: false,
-        clickOpens: true,
-        placeholder: "Pilih tanggal mulai",
-        static: true,
-        maxDate: "today", // Tidak bisa pilih tanggal masa depan
-        showMonths: 1,
-        animate: true,
-        closeOnSelect: true,
-        onChange: function (selectedDates, dateStr, instance) {
-            // Update end date minimum to start date
-            if (selectedDates.length > 0) {
-                endDatePicker.set("minDate", selectedDates[0]);
-            }
-        },
-        onOpen: function (selectedDates, dateStr, instance) {
-            // Add smooth animation when opening
-            instance.calendarContainer.style.opacity = "0";
-            instance.calendarContainer.style.transform =
-                "scale(0.95) translateY(-10px)";
-            setTimeout(() => {
-                instance.calendarContainer.style.transition =
-                    "all 0.2s ease-out";
-                instance.calendarContainer.style.opacity = "1";
+    let startDatePicker = null;
+    let endDatePicker = null;
+
+    try {
+        // Check if elements exist
+        const startDateElement = document.getElementById("start_date");
+        const endDateElement = document.getElementById("end_date");
+
+        if (!startDateElement && !endDateElement) {
+            console.warn("Flatpickr: No date picker elements found");
+            return { startDatePicker: null, endDatePicker: null };
+        }
+
+        // Common flatpickr options
+        const commonOptions = {
+            locale: "id",
+            dateFormat: "Y-m-d",
+            allowInput: false,
+            clickOpens: true,
+            static: true,
+            maxDate: "today",
+            showMonths: 1,
+            animate: true,
+            closeOnSelect: true,
+            onOpen: function (selectedDates, dateStr, instance) {
+                instance.calendarContainer.style.opacity = "0";
                 instance.calendarContainer.style.transform =
-                    "scale(1) translateY(0)";
-            }, 10);
-        },
-    });
+                    "scale(0.95) translateY(-10px)";
+                setTimeout(() => {
+                    instance.calendarContainer.style.transition =
+                        "all 0.2s ease-out";
+                    instance.calendarContainer.style.opacity = "1";
+                    instance.calendarContainer.style.transform =
+                        "scale(1) translateY(0)";
+                }, 10);
+            },
+        };
 
-    // Initialize Flatpickr untuk tanggal akhir
-    const endDatePicker = flatpickr("#end_date", {
-        locale: "id",
-        dateFormat: "Y-m-d",
-        allowInput: false,
-        clickOpens: true,
-        placeholder: "Pilih tanggal akhir",
-        static: true,
-        maxDate: "today", // Tidak bisa pilih tanggal masa depan
-        showMonths: 1,
-        animate: true,
-        closeOnSelect: true,
-        onChange: function (selectedDates, dateStr, instance) {
-            // Update start date maximum to end date
-            if (selectedDates.length > 0) {
-                startDatePicker.set("maxDate", selectedDates[0]);
+        // Initialize start date picker
+        if (startDateElement) {
+            startDatePicker = flatpickr("#start_date", {
+                ...commonOptions,
+                placeholder: "Pilih tanggal mulai",
+                onChange: function (selectedDates) {
+                    if (selectedDates.length > 0 && endDatePicker) {
+                        endDatePicker.set("minDate", selectedDates[0]);
+                    }
+                },
+            });
+        }
+
+        // Initialize end date picker
+        if (endDateElement) {
+            endDatePicker = flatpickr("#end_date", {
+                ...commonOptions,
+                placeholder: "Pilih tanggal akhir",
+                onChange: function (selectedDates) {
+                    if (selectedDates.length > 0 && startDatePicker) {
+                        startDatePicker.set("maxDate", selectedDates[0]);
+                    }
+                },
+            });
+        }
+
+        // Set initial constraints
+        if (startDatePicker && endDatePicker) {
+            const startDateValue = startDateElement?.value;
+            const endDateValue = endDateElement?.value;
+
+            if (startDateValue) {
+                endDatePicker.set("minDate", startDateValue);
             }
-        },
-        onOpen: function (selectedDates, dateStr, instance) {
-            // Add smooth animation when opening
-            instance.calendarContainer.style.opacity = "0";
-            instance.calendarContainer.style.transform =
-                "scale(0.95) translateY(-10px)";
-            setTimeout(() => {
-                instance.calendarContainer.style.transition =
-                    "all 0.2s ease-out";
-                instance.calendarContainer.style.opacity = "1";
-                instance.calendarContainer.style.transform =
-                    "scale(1) translateY(0)";
-            }, 10);
-        },
-    });
 
-    // Set initial min date untuk end date jika start date sudah ada
-    const startDateValue = document.getElementById("start_date")?.value;
-    if (startDateValue) {
-        endDatePicker.set("minDate", startDateValue);
-    }
-
-    // Set initial max date untuk start date jika end date sudah ada
-    const endDateValue = document.getElementById("end_date")?.value;
-    if (endDateValue) {
-        startDatePicker.set("maxDate", endDateValue);
+            if (endDateValue) {
+                startDatePicker.set("maxDate", endDateValue);
+            }
+        }
+    } catch (error) {
+        console.error("Error initializing Flatpickr:", error);
     }
 
     return { startDatePicker, endDatePicker };

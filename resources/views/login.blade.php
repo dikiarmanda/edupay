@@ -64,10 +64,9 @@
         </div>
 
         <!-- Login Button -->
-        <button type="submit"
-          class="w-full rounded-lg bg-purple-600 px-4 py-3 font-bold text-white transition duration-200 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+        <x-button type="primary" as="submit" class="w-full py-3 font-bold">
           Masuk
-        </button>
+        </x-button>
       </form>
 
       <!-- Forgot Password Link -->

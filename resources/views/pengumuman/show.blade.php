@@ -3,26 +3,14 @@
 @section('title', $pengumuman->judul . ' - EduPay')
 
 @section('content')
-  <!-- Header -->
-  <div class="bg-white px-4 py-4 shadow-sm">
-    <div class="flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <a href="{{ route('pengumuman.index') }}" class="flex items-center space-x-2 text-gray-600 hover:text-purple-600">
-          <i data-lucide="arrow-left" class="h-5 w-5"></i>
-          <span class="text-sm font-medium">Kembali</span>
-        </a>
-      </div>
-      <div class="flex items-center space-x-2">
-        <i data-lucide="megaphone" class="h-6 w-6 text-purple-600"></i>
-        <h1 class="text-lg font-bold text-gray-900">Detail Pengumuman</h1>
-      </div>
-      <div class="w-20"></div> <!-- Spacer untuk balance -->
-    </div>
+  <div class="px-4 pt-4">
+    <!-- Header -->
+    <x-header title="Detail Pengumuman" backUrl="{{ route('pengumuman.index') }}" />
   </div>
 
   <!-- Pengumuman Detail -->
   <div class="mt-5 px-4 pb-20">
-    <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+    <div class="rounded-xl border border-gray-200 p-6 shadow-sm">
 
       <!-- Title -->
       <h1 class="mb-4 text-2xl font-bold text-gray-900">{{ $pengumuman->judul }}</h1>
@@ -30,8 +18,7 @@
         <div class="flex items-center space-x-2">
           <span class="text-sm font-medium text-gray-900">Dari : {{ $pengumuman->author ?? 'Admin' }}</span>
         </div>
-        <span
-          class="text-sm font-medium text-gray-900">{{ $pengumuman->created_at->translatedFormat('d M Y H:i') }}</span>
+        <span class="text-sm font-medium text-gray-900">{{ $pengumuman->created_at->translatedFormat('d M Y H:i') }}</span>
       </div>
 
       <!-- Content -->
@@ -42,14 +29,14 @@
       </div>
 
     </div>
-
     <!-- Related Pengumuman -->
     @if ($relatedPengumuman && $relatedPengumuman->count() > 0)
-      <div class="mt-8">
+      <hr class="mt-4">
+      <div class="mt-4">
         <h3 class="mb-4 text-lg font-semibold text-gray-900">Pengumuman Lainnya</h3>
         <div class="space-y-4">
           @foreach ($relatedPengumuman as $related)
-            <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div class="rounded-xl border border-gray-200 p-4 shadow-sm">
               <div class="mb-3 flex items-start justify-between">
                 <div class="flex-1">
                   <h3 class="line-clamp-2 text-lg font-semibold text-gray-900">{{ $related->judul }}</h3>
@@ -62,10 +49,9 @@
               </div>
               <p class="mb-3 line-clamp-2 text-sm text-gray-600">{{ $related->excerpt }}</p>
               <div class="flex items-center justify-end">
-                <a href="{{ route('pengumuman.show', $related) }}"
-                  class="inline-flex items-center rounded-lg bg-purple-600 px-3 py-1 text-xs font-medium text-white hover:bg-purple-700">
+                <x-button href="{{ route('pengumuman.show', $related) }}" type="primary" class="py-1 text-xs">
                   Baca Selengkapnya
-                </a>
+                </x-button>
               </div>
             </div>
           @endforeach
@@ -73,12 +59,6 @@
       </div>
     @endif
   </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('navDashboard').classList.add('active');
-    });
-  </script>
 
   <style>
     .line-clamp-2 {

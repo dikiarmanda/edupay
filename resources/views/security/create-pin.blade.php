@@ -49,7 +49,7 @@
 </head>
 
 <body class="flex min-h-screen items-center justify-center px-4">
-    <div class="w-full max-w-sm rounded-2xl bg-white p-8 shadow-2xl">
+  <div class="w-full max-w-sm rounded-2xl bg-white p-8 shadow-2xl">
     <!-- Header -->
     <div class="mb-8 text-center">
       <h1 class="mb-4 text-3xl font-bold text-gray-900">Buat PIN Keamanan</h1>
@@ -99,10 +99,10 @@
       </div>
 
       <!-- Save Button -->
-      <button type="submit" id="saveButton"
-        class="w-full rounded-xl bg-purple-600 px-6 py-4 font-bold text-white transition duration-200 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+      <x-button type="primary" as="submit" id="saveButton"
+        class="w-full py-4 font-bold disabled:cursor-not-allowed disabled:opacity-50">
         Simpan PIN
-      </button>
+      </x-button>
     </form>
   </div>
 
@@ -207,7 +207,7 @@
           confirmPinInputs.forEach(input => input.classList.remove('error', 'success'));
           errorMessage.classList.add('hidden');
           successMessage.classList.add('hidden');
-        //   saveButton.disabled = true;
+          //   saveButton.disabled = true;
           return false;
         }
       }

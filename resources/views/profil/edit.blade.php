@@ -73,10 +73,9 @@
 
           <!-- Action Buttons -->
           <div class="flex space-x-3">
-            <button type="submit"
-              class="flex-1 rounded-lg bg-purple-600 px-6 py-3 font-medium text-white hover:bg-purple-700">
+            <x-button type="primary" as="submit" class="flex-1 py-3">
               Simpan Perubahan
-            </button>
+            </x-button>
           </div>
         </form>
       </div>

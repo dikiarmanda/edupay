@@ -3,25 +3,13 @@
 @section('title', 'Pengumuman - EduPay')
 
 @section('content')
-  <!-- Header -->
-  <div class="bg-white px-4 py-4 shadow-sm">
-    <div class="flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <a href="{{ route('dashboard') }}" class="flex items-center space-x-2 text-gray-600 hover:text-purple-600">
-          <i data-lucide="arrow-left" class="h-5 w-5"></i>
-          <span class="text-sm font-medium">Kembali</span>
-        </a>
-      </div>
-      <div class="flex items-center space-x-2">
-        <i data-lucide="megaphone" class="h-6 w-6 text-purple-600"></i>
-        <h1 class="text-lg font-bold text-gray-900">Pengumuman</h1>
-      </div>
-      <div class="w-20"></div> <!-- Spacer untuk balance -->
-    </div>
+  <div class="px-4 pt-4">
+    <!-- Header -->
+    <x-header title="Pengumuman" backUrl="{{ route('dashboard') }}" />
   </div>
 
   <!-- Search Bar -->
-  <div class="px-4 py-4">
+  <div class="p-4">
     <form method="GET" action="{{ route('pengumuman.index') }}">
       <div class="relative">
         <i data-lucide="search" class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"></i>
@@ -56,10 +44,9 @@
 
           <!-- Footer -->
           <div class="flex items-center justify-end">
-            <a href="{{ route('pengumuman.show', $item) }}"
-              class="inline-flex items-center rounded-lg bg-purple-600 px-3 py-1 text-xs font-medium text-white hover:bg-purple-700">
+            <x-button href="{{ route('pengumuman.show', $item) }}" type="primary" class="py-1 text-xs">
               Baca Selengkapnya
-            </a>
+            </x-button>
           </div>
         </div>
       @empty
@@ -100,10 +87,4 @@
       overflow: hidden;
     }
   </style>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('navDashboard').classList.add('active');
-    });
-  </script>
 @endsection

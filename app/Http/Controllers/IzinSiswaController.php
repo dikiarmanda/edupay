@@ -48,7 +48,7 @@ class IzinSiswaController extends Controller
         // Validasi input
         $validated = $request->validate([
             'tanggal_izin' => 'required|date|before_or_equal:today',
-            'jenis_izin' => 'required|in:sakit,izin,dispensasi',
+            'jenis_izin' => 'required|in:Sakit,Izin,Alpha,Lainnya',
             'alasan' => 'required|string|max:500',
             'bukti_surat' => 'required|file|mimes:png,pdf,jpg,jpeg|max:2048',
         ]);
@@ -63,7 +63,7 @@ class IzinSiswaController extends Controller
             if ($request->hasFile('bukti_surat')) {
                 $file = $request->file('bukti_surat');
                 $fileName = time() . '_' . $file->getClientOriginalName();
-                $file->storeAs('public/izin-siswa', $fileName);
+                $file->storeAs('izin-siswa', $fileName);
                 $validated['bukti_surat'] = 'izin-siswa/' . $fileName;
             }
 
@@ -144,7 +144,7 @@ class IzinSiswaController extends Controller
         // Validasi input
         $validated = $request->validate([
             'tanggal_izin' => 'required|date|before_or_equal:today',
-            'jenis_izin' => 'required|in:sakit,izin,dispensasi',
+            'jenis_izin' => 'required|in:Sakit,Izin,Alpha,Lainnya',
             'alasan' => 'required|string|max:500',
             'bukti_surat' => 'nullable|file|mimes:png,pdf,jpg,jpeg|max:2048',
         ]);
@@ -153,14 +153,14 @@ class IzinSiswaController extends Controller
             // Handle file upload jika ada file baru
             if ($request->hasFile('bukti_surat')) {
                 // Hapus file lama jika ada
-                if ($izin->bukti_surat && Storage::exists('public/' . $izin->bukti_surat)) {
-                    Storage::delete('public/' . $izin->bukti_surat);
+                if ($izin->bukti_surat && Storage::exists('izin-siswa/' . $izin->bukti_surat)) {
+                    Storage::delete('izin-siswa/' . $izin->bukti_surat);
                 }
 
                 // Upload file baru
                 $file = $request->file('bukti_surat');
                 $fileName = time() . '_' . $file->getClientOriginalName();
-                $file->storeAs('public/izin-siswa', $fileName);
+                $file->storeAs('izin-siswa', $fileName);
                 $validated['bukti_surat'] = 'izin-siswa/' . $fileName;
             } else {
                 // Jika tidak ada file baru, hapus dari validated agar tidak ter-update
@@ -232,12 +232,12 @@ class IzinSiswaController extends Controller
                 ->with('error', 'Akses ditolak.');
         }
 
-        if (!$izin->bukti_surat || !Storage::exists('public/' . $izin->bukti_surat)) {
+        if (!$izin->bukti_surat || !Storage::exists($izin->bukti_surat)) {
             return redirect()->route('izin-siswa.index')
                 ->with('error', 'File tidak ditemukan.');
         }
 
-        return Storage::download('public/' . $izin->bukti_surat);
+        return Storage::download($izin->bukti_surat);
     }
 }
 

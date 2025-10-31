@@ -1,27 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
-  <div class="min-h-screen bg-gray-100">
+  <div class="mb-18 w-full p-4">
     <!-- Header -->
-    <div class="bg-white shadow-sm">
-      <div class="mx-auto max-w-md px-4 py-4">
-        <div class="flex items-center space-x-3">
-          <button onclick="history.back()" class="flex-shrink-0">
-            <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-          </button>
-          <h1 class="text-lg font-semibold text-gray-900">Detail Izin</h1>
-        </div>
-      </div>
-    </div>
+    <x-header title="Detail Izin" backUrl="{{ route('izin-siswa.index') }}" />
 
     <!-- Main Content -->
-    <div class="mx-auto max-w-md px-4 py-6">
+    <div class="mx-auto py-6">
       <div class="space-y-4">
 
         <!-- Data Card -->
-        <div class="rounded-lg bg-white p-6 shadow-sm">
+        <div class="rounded-lg border border-gray-200 p-6 shadow-sm">
           <h3 class="mb-4 font-semibold text-gray-900">Informasi Izin</h3>
           <div class="space-y-3">
             <div class="flex justify-between border-b border-gray-100 pb-2">
@@ -60,7 +49,7 @@
 
         <!-- Bukti Surat Card -->
         @if ($izin->bukti_surat)
-          <div class="rounded-lg bg-white p-6 shadow-sm">
+          <div class="rounded-lg border border-gray-200 p-6 shadow-sm">
             <h3 class="mb-4 font-semibold text-gray-900">Bukti Surat</h3>
             <div class="space-y-3">
               <a href="{{ asset('storage/' . $izin->bukti_surat) }}" target="_blank" class="block">
@@ -82,28 +71,25 @@
                   </svg>
                 </div>
               </a>
-              <a href="{{ route('izin-siswa.download-bukti', $izin->id) }}" class="block">
-                <button class="w-full rounded-lg bg-purple-600 px-4 py-2 font-medium text-white hover:bg-purple-700">
-                  Download File
-                </button>
-              </a>
+              <x-button href="{{ route('izin-siswa.download-bukti', $izin->id) }}" type="primary" class="w-full">
+                <i data-lucide="download" class="mr-1 h-4 w-4"></i>
+                Download File
+              </x-button>
             </div>
           </div>
         @endif
 
         <!-- Action Buttons -->
         <div class="flex space-x-3">
-          <a href="{{ route('izin-siswa.index') }}"
-            class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-3 text-center font-medium text-gray-700 hover:bg-gray-50">
+          <x-button href="{{ route('izin-siswa.index') }}" type="outline" class="flex-1">
             Kembali
-          </a>
+          </x-button>
           @if (
               \Carbon\Carbon::parse($izin->tanggal_izin)->isSameDay(now()) ||
                   \Carbon\Carbon::parse($izin->tanggal_izin)->isFuture())
-            <a href="{{ route('izin-siswa.edit', $izin->id) }}"
-              class="flex-1 rounded-lg border border-purple-300 bg-white px-4 py-3 text-center font-medium text-purple-700 hover:bg-purple-50">
+            <x-button href="{{ route('izin-siswa.edit', $izin->id) }}" type="outline-primary" class="flex-1">
               Edit
-            </a>
+            </x-button>
           @endif
         </div>
       </div>

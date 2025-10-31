@@ -1,23 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
-  <div class="min-h-screen bg-gray-100">
+  <div class="mb-18 w-full p-4">
     <!-- Header -->
-    <div class="bg-white shadow-sm">
-      <div class="mx-auto max-w-md px-4 py-4">
-        <div class="flex items-center space-x-3">
-          <button onclick="history.back()" class="flex-shrink-0">
-            <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-          </button>
-          <h1 class="text-lg font-semibold text-gray-900">Edit Izin</h1>
-        </div>
-      </div>
-    </div>
+    <x-header title="Edit Izin" backUrl="{{ route('izin-siswa.index') }}" />
 
     <!-- Main Content -->
-    <div class="mx-auto max-w-md px-4 py-6">
+    <div class="mx-auto py-6">
       <form method="POST" action="{{ route('izin-siswa.update', $izin->id) }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
@@ -38,9 +27,9 @@
 
         <!-- Tanggal Izin -->
         <div class="mb-4">
-          <label for="tanggal_izin" class="mb-2 block text-sm font-medium text-gray-700">Tanggal Izin <span
+          <label for="start_date" class="mb-2 block text-sm font-medium text-gray-700">Tanggal Izin <span
               class="text-red-500">*</span></label>
-          <input type="date" id="tanggal_izin" name="tanggal_izin"
+          <input type="text" id="start_date" name="tanggal_izin"
             value="{{ old('tanggal_izin', $izin->tanggal_izin->format('Y-m-d')) }}" max="{{ date('Y-m-d') }}"
             class="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900" required>
           @error('tanggal_izin')
@@ -55,10 +44,12 @@
           <select id="jenis_izin" name="jenis_izin"
             class="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900" required>
             <option value="">Pilih Jenis Izin</option>
-            <option value="sakit" {{ old('jenis_izin', $izin->jenis_izin) == 'sakit' ? 'selected' : '' }}>Sakit</option>
-            <option value="izin" {{ old('jenis_izin', $izin->jenis_izin) == 'izin' ? 'selected' : '' }}>Izin</option>
-            <option value="dispensasi" {{ old('jenis_izin', $izin->jenis_izin) == 'dispensasi' ? 'selected' : '' }}>
-              Dispensasi</option>
+            <option value="Sakit" {{ old('jenis_izin', $izin->jenis_izin) == 'Sakit' ? 'selected' : '' }}>Sakit</option>
+            <option value="Izin" {{ old('jenis_izin', $izin->jenis_izin) == 'Izin' ? 'selected' : '' }}>Izin</option>
+            <option value="Alpha" {{ old('jenis_izin', $izin->jenis_izin) == 'Alpha' ? 'selected' : '' }}>
+              Alpha</option>
+            <option value="Lainnya" {{ old('jenis_izin', $izin->jenis_izin) == 'Lainnya' ? 'selected' : '' }}>
+              Lainnya</option>
           </select>
           @error('jenis_izin')
             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -107,16 +98,25 @@
 
         <!-- Submit Button -->
         <div class="flex space-x-3">
-          <button type="button" onclick="history.back()"
-            class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50">
+          <x-button type="outline" href="{{ route('izin-siswa.index') }}" class="flex-1">
             Batal
-          </button>
-          <button type="submit"
-            class="flex-1 rounded-lg bg-purple-600 px-4 py-3 font-medium text-white hover:bg-purple-700">
-            Update Izin
-          </button>
+          </x-button>
+          <x-button type="primary" as="submit" class="flex-1">
+            <i data-lucide="save" class="mr-1 h-4 w-4"></i>
+            Simpan
+          </x-button>
         </div>
       </form>
     </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize Flatpickr when filter is shown
+      if (typeof window.initializeFlatpickr === 'function') {
+        window.initializeFlatpickr();
+        document.getElementById('start_date').parentElement.classList.add('w-full');
+      }
+    });
+  </script>
 @endsection

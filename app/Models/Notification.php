@@ -90,10 +90,10 @@ class Notification extends Model
     public function getTypeIcon()
     {
         return match ($this->tipe) {
-            'info' => 'info-circle',
-            'warning' => 'exclamation-triangle',
-            'success' => 'check-circle',
-            'error' => 'times-circle',
+            'info' => 'info',
+            'warning' => 'triangle-alert',
+            'success' => 'circle-check-big',
+            'error' => 'circle-x',
             default => 'bell'
         };
     }

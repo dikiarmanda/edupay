@@ -1,23 +1,14 @@
 @extends('layouts.app')
 
 @section('content')
-  <div class="min-h-screen bg-gray-100">
+  <div class="mb-18 w-full p-4">
     <!-- Header -->
-    <div class="bg-white shadow-sm">
-      <div class="mx-auto max-w-md px-4 py-4">
-        <div class="flex items-center space-x-3">
-          <button onclick="history.back()" class="flex-shrink-0">
-            <i data-lucide="chevron-left" class="h-6 w-6 text-gray-600"></i>
-          </button>
-          <h1 class="text-lg font-semibold text-gray-900">Struk Pembayaran</h1>
-        </div>
-      </div>
-    </div>
+    <x-header title="Struk Pembayaran" backUrl="{{ route('tagihan.index') }}" />
 
     <!-- Main Content -->
-    <div class="mb-18 mx-auto max-w-md px-4 py-6">
+    <div class="mx-auto py-6">
       <!-- Receipt Card -->
-      <div class="print-area rounded-lg bg-white p-6 shadow-sm">
+      <div class="print-area rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
         <!-- Header -->
         <div class="mb-6 text-center">
           <h2 class="text-xl font-bold text-gray-900">EduPay</h2>
