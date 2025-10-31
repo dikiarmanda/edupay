@@ -81,27 +81,6 @@ class TagihanSiswa extends Model
         return $this->status_pembayaran == '1';
     }
 
-    // Method untuk mendapatkan nama bulan
-    public function getNamaBulanAttribute()
-    {
-        $bulan = [
-            '01' => 'Januari',
-            '02' => 'Februari',
-            '03' => 'Maret',
-            '04' => 'April',
-            '05' => 'Mei',
-            '06' => 'Juni',
-            '07' => 'Juli',
-            '08' => 'Agustus',
-            '09' => 'September',
-            '10' => 'Oktober',
-            '11' => 'November',
-            '12' => 'Desember'
-        ];
-
-        return $bulan[$this->bulan] ?? $this->bulan;
-    }
-
     // Relationship dengan MutationHistory
     public function mutationHistory()
     {
@@ -112,5 +91,10 @@ class TagihanSiswa extends Model
     public function notifications()
     {
         return $this->hasMany(Notification::class, 'nisn', 'nisn');
+    }
+
+    public function merchant()
+    {
+        return $this->belongsTo(Merchant::class, 'merchant_kode', 'kode_merchant');
     }
 }

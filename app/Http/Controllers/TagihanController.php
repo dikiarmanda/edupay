@@ -134,22 +134,25 @@ class TagihanController extends Controller
 
     public function downloadPdf($id)
     {
-        $tagihan = TagihanSiswa::findOrFail($id);
+        $tagihan = TagihanSiswa::with('merchant:kode_merchant,nama_merchant,logo')
+            ->findOrFail($id);
 
         if (!$tagihan->isLunas()) {
             return redirect()->route('tagihan.index')->with('error', 'Tagihan belum lunas');
         }
 
         $html = view('tagihan.struk-pdf', compact('tagihan'))->render();
-
+        $fileName = 'pembayaran-' . $tagihan->tagihan . '-' . bulanList()[$tagihan->bulan] . '.pdf';
         $pdf = Browsershot::html($html)
             ->format('A4')
-            ->margins(0, 0, 0, 0)
+            ->margins(10, 10, 10, 10) // Kasih margin sedikit
+            ->showBackground() // PENTING: Render background colors
             ->waitUntilNetworkIdle()
+            ->setDelay(1000) // Tunggu 1 detik
             ->pdf();
 
         return response($pdf)
             ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'attachment; filename="struk-' . $tagihan->id . '.pdf"');
+            ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
     }
 }
